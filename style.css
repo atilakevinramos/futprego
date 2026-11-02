@@ -24,7 +24,6 @@ body {
     width: 100vw;
     height: 100vh;
 }
-
 .hidden {
     display: none !important;
 }
@@ -65,6 +64,295 @@ body {
     margin: 0 auto;
 }
 
+/* TELA DE FORMAÇÃO */
+#formation-screen {
+    background: radial-gradient(circle, #263b31 0%, #101713 100%);
+    padding: 18px;
+    overflow-y: auto;
+}
+
+#formation-container {
+    width: min(1100px, 100%);
+    max-height: 96vh;
+    overflow-y: auto;
+    padding: 22px;
+    background: rgba(20, 20, 20, 0.96);
+    border: 2px solid #388e3c;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.75);
+}
+
+.formation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.formation-header h1 {
+    color: #ffeb3b;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.formation-header p,
+.formation-help {
+    color: #b0bec5;
+    font-size: 0.92rem;
+}
+
+.formation-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: #ddd;
+}
+
+.formation-legend span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+}
+
+.brazil-dot {
+    background: #ffeb3b;
+    border: 2px solid #2e7d32;
+}
+
+.argentina-dot {
+    background: #4fc3f7;
+    border: 2px solid #fff;
+}
+
+.formation-options {
+    margin-bottom: 17px;
+}
+
+.formation-options h2 {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.formation-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.formation-choice {
+    min-height: 62px;
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: #eee;
+    background: #303030;
+    border: 2px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.formation-choice strong {
+    font-size: 1.15rem;
+}
+
+.formation-choice small {
+    color: #b0bec5;
+    font-size: 0.75rem;
+}
+
+.formation-choice:hover {
+    background: #414141;
+}
+
+.formation-choice.active {
+    background: #244d2b;
+    border-color: #ffeb3b;
+    box-shadow: 0 0 10px rgba(255, 235, 59, 0.18);
+}
+
+.tactical-board-section {
+    background: #171717;
+    border: 1px solid #3e3e3e;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.tactical-board-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+.tactical-board-heading strong {
+    color: #ffeb3b;
+    letter-spacing: 0.5px;
+}
+
+#formation-status {
+    color: #ccc;
+    text-align: right;
+}
+
+#tactical-field {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 3;
+    overflow: hidden;
+    border: 5px solid #5d4037;
+    border-radius: 5px;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.035) 0,
+            rgba(0, 0, 0, 0.035) 8%,
+            transparent 8%,
+            transparent 16%
+        ),
+        #2e7d32;
+    touch-action: none;
+}
+
+.tactical-center-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateX(-50%);
+}
+
+.tactical-center-circle {
+    position: absolute;
+    width: 12%;
+    aspect-ratio: 1;
+    left: 50%;
+    top: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tactical-center-spot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    left: 50%;
+    top: 50%;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.tactical-left-area,
+.tactical-right-area {
+    position: absolute;
+    top: 31.5%;
+    width: 10%;
+    height: 37%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.tactical-left-area {
+    left: 0;
+    border-left: 0;
+}
+
+.tactical-right-area {
+    right: 0;
+    border-right: 0;
+}
+
+.tactical-left-goal,
+.tactical-right-goal {
+    position: absolute;
+    top: 41%;
+    width: 3%;
+    height: 18%;
+    border: 2px solid #fff;
+}
+
+.tactical-left-goal {
+    left: -1px;
+    border-left: 0;
+}
+
+.tactical-right-goal {
+    right: -1px;
+    border-right: 0;
+}
+
+#tactical-pegs {
+    position: absolute;
+    inset: 0;
+}
+
+.tactical-peg {
+    position: absolute;
+    width: clamp(22px, 3.2vw, 32px);
+    height: clamp(22px, 3.2vw, 32px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #222;
+    z-index: 2;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.55);
+}
+
+.tactical-peg.brazil-peg {
+    background: radial-gradient(circle at 35% 30%, #fff176, #ffeb3b 55%, #a68e00);
+    border: 3px solid #2e7d32;
+    cursor: grab;
+    z-index: 3;
+}
+
+.tactical-peg.argentina-peg {
+    background: radial-gradient(circle at 35% 30%, #fff, #81d4fa 55%, #1684b7);
+    border: 3px solid #fff;
+    cursor: default;
+}
+
+.tactical-peg.dragging {
+    cursor: grabbing;
+    z-index: 5;
+    box-shadow: 0 0 0 4px rgba(255, 235, 59, 0.28), 2px 4px 8px rgba(0,0,0,0.65);
+}
+
+.formation-help {
+    margin-top: 9px;
+    line-height: 1.4;
+}
+
+.formation-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+}
+
 /* CONTAINER DO JOGO */
 #game-container {
     display: flex;
@@ -102,7 +390,6 @@ body {
 .team-brazil {
     border-left: 6px solid #ffeb3b;
 }
-
 .team-argentina {
     border-right: 6px solid #4fc3f7;
 }
@@ -133,7 +420,6 @@ body {
     color: #aaa;
     margin-bottom: 4px;
 }
-
 #current-turn {
     font-weight: bold;
     color: #ffeb3b;
@@ -196,8 +482,108 @@ canvas {
 .btn.primary:hover {
     background: #388e3c;
 }
-
 .btn.large {
     padding: 14px 24px;
     font-size: 1.1rem;
+}
+
+/* AJUSTES PARA TELAS MENORES */
+@media (max-width: 700px) {
+    body {
+        overflow: auto;
+    }
+
+    .menu-box {
+        padding: 35px 25px;
+        width: calc(100% - 30px);
+    }
+
+    .menu-box h1 {
+        font-size: 2rem;
+    }
+
+    #formation-screen {
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    #formation-container {
+        max-height: none;
+        padding: 13px;
+    }
+
+    .formation-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .formation-header h1 {
+        font-size: 1.45rem;
+    }
+
+    .formation-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .formation-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tactical-board-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #formation-status {
+        text-align: left;
+    }
+
+    .formation-footer {
+        flex-direction: column-reverse;
+    }
+
+    .formation-footer .btn {
+        width: 100%;
+    }
+
+    #game-container {
+        width: 100%;
+        padding: 6px;
+        gap: 8px;
+    }
+
+    #ui-header {
+        padding: 7px;
+    }
+
+    .team-score {
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .team-name {
+        font-size: 0.8rem;
+    }
+
+    .score {
+        font-size: 1.4rem;
+    }
+
+    #turn-indicator {
+        font-size: 0.75rem;
+    }
+
+    #timer {
+        font-size: 1rem;
+    }
+
+    #ui-controls {
+        gap: 8px;
+    }
+
+    #ui-controls .btn {
+        padding: 9px 10px;
+        font-size: 0.78rem;
+    }
 }
