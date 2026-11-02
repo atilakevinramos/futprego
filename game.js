@@ -1,12 +1,97 @@
 /**
  * REGRAS, ELEMENTOS DO JOGO, IA E RENDERIZAÇÃO CANVAS
+ * Edição de Clubes do Brasileirão com Moeda de 5 Centavos
  */
 
+// REGISTRO CENTRALIZADO DE CLUBES (Com os 8 clubes integrados)
+const TEAMS = {
+    flamengo: {
+        id: 'flamengo',
+        name: 'FLAMENGO',
+        primaryColor: '#c62828',   // Vermelho
+        secondaryColor: '#111111', // Preto
+        accentColor: '#ffffff',
+        pattern: 'horizontal',
+        gkBody: '#111111',
+        gkDetail: '#c62828'
+    },
+    vasco: {
+        id: 'vasco',
+        name: 'VASCO',
+        primaryColor: '#111111',   // Preto
+        secondaryColor: '#ffffff', // Faixa diagonal branca
+        accentColor: '#d32f2f',    // Detalhe discreto em vermelho
+        pattern: 'diagonal',
+        gkBody: '#212121',
+        gkDetail: '#ffffff'
+    },
+    gremio: {
+        id: 'gremio',
+        name: 'GRÊMIO',
+        primaryColor: '#1e88e5',   // Azul
+        secondaryColor: '#111111', // Preto
+        accentColor: '#ffffff',    // Branco
+        pattern: 'vertical',
+        gkBody: '#0d47a1',
+        gkDetail: '#ffffff'
+    },
+    inter: {
+        id: 'inter',
+        name: 'INTERNACIONAL',
+        primaryColor: '#d32f2f',   // Vermelho
+        secondaryColor: '#ffffff', // Branco
+        accentColor: '#ffffff',
+        pattern: 'solid',
+        gkBody: '#b71c1c',
+        gkDetail: '#ffffff'
+    },
+    cruzeiro: {
+        id: 'cruzeiro',
+        name: 'CRUZEIRO',
+        primaryColor: '#1565c0',   // Azul predominante
+        secondaryColor: '#ffffff', // Branco
+        accentColor: '#ffffff',
+        pattern: 'solid',
+        gkBody: '#0d47a1',
+        gkDetail: '#ffffff'
+    },
+    botafogo: {
+        id: 'botafogo',
+        name: 'BOTAFOGO',
+        primaryColor: '#111111',   // Preto
+        secondaryColor: '#ffffff', // Branco
+        accentColor: '#ffffff',
+        pattern: 'vertical',
+        gkBody: '#333333',
+        gkDetail: '#ffffff'
+    },
+    palmeiras: {
+        id: 'palmeiras',
+        name: 'PALMEIRAS',
+        primaryColor: '#2e7d32',   // Verde predominante
+        secondaryColor: '#ffffff', // Branco
+        accentColor: '#ffffff',
+        pattern: 'solid',
+        gkBody: '#1b5e20',
+        gkDetail: '#ffffff'
+    },
+    saopaulo: {
+        id: 'saopaulo',
+        name: 'SÃO PAULO',
+        primaryColor: '#ffffff',   // Branco predominante
+        secondaryColor: '#c62828', // Vermelho e preto
+        accentColor: '#111111',
+        pattern: 'horizontal',
+        gkBody: '#424242',
+        gkDetail: '#ffffff'
+    }
+};
+
 class Coin {
-    constructor(x, y, radius = 14) {
+    constructor(x, y, radius = 10) {
         this.position = new Vector2D(x, y);
         this.velocity = new Vector2D(0, 0);
-        this.radius = radius;
+        this.radius = radius; // Preserva o raio físico original (12.6px)
         this.isMoving = false;
     }
 
@@ -14,30 +99,54 @@ class Coin {
         ctx.save();
         ctx.translate(this.position.x, this.position.y);
 
-        // Sombra da moeda
+        // 1. Sombra projetada no gramado
         ctx.beginPath();
         ctx.arc(3, 3, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
         ctx.fill();
 
-        // Corpo da moeda
-        const grad = ctx.createRadialGradient(-3, -3, 2, 0, 0, this.radius);
-        grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.5, '#cccccc');
-        grad.addColorStop(1, '#777777');
+        // 2. Base metálica acobreada (Moeda de 5 Centavos)
+        const baseGrad = ctx.createRadialGradient(-3, -3, 1, 0, 0, this.radius);
+        baseGrad.addColorStop(0, '#f3a97b');
+        baseGrad.addColorStop(0.5, '#b86638');
+        baseGrad.addColorStop(0.85, '#8c431d');
+        baseGrad.addColorStop(1, '#5c2b10');
 
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
+        ctx.fillStyle = baseGrad;
         ctx.fill();
 
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#444444';
+        // 3. Borda metálica externa com relevo
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = '#fce4d6';
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 2);
-        ctx.strokeStyle = '#aaaaaa';
+        ctx.arc(0, 0, this.radius - 1.8, 0, Math.PI * 2);
+        ctx.strokeStyle = '#421a08';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 4. Detalhes internos em relevo (Estilo 5 Centavos)
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius - 3.5, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(252, 228, 214, 0.4)';
+        ctx.stroke();
+
+        // Inscrição visual do valor "5"
+        ctx.fillStyle = 'rgba(255, 235, 215, 0.85)';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('5', 0, -1);
+
+        // Micro detalhes em linhas diagonais no fundo (relevo da moeda)
+        ctx.strokeStyle = 'rgba(66, 26, 8, 0.35)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(-5, 4);
+        ctx.lineTo(5, 4);
         ctx.stroke();
 
         ctx.restore();
@@ -45,58 +154,96 @@ class Coin {
 }
 
 class Peg {
-    constructor(x, y, team, radius = 7) {
+    constructor(x, y, teamId, radius = 9.6, isGoalKeeper = false) { 
         this.position = new Vector2D(x, y);
-        this.team = team;
+        this.teamId = teamId;
         this.radius = radius;
+        this.isGoalKeeper = isGoalKeeper;
+        this.gkDirection = 1; // 1 para baixo, -1 para cima
     }
 
     draw(ctx) {
-        if (this.team === 'none') return;
+        if (this.teamId === 'none') return;
 
+        const teamConfig = TEAMS[this.teamId];
         ctx.save();
         ctx.translate(this.position.x, this.position.y);
 
-        // Sombra do prego
+        // Sombra da peça
         ctx.beginPath();
         ctx.arc(2, 2, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fill();
 
-        // Cabeça metálica
-        const grad = ctx.createRadialGradient(-2, -2, 1, 0, 0, this.radius);
-        grad.addColorStop(0, '#e0e0e0');
-        grad.addColorStop(0.7, '#888888');
-        grad.addColorStop(1, '#333333');
+        // Anel metálico externo 3D (Prego/Botão)
+        const metalGrad = ctx.createRadialGradient(-2, -2, 1, 0, 0, this.radius);
+        metalGrad.addColorStop(0, '#ffffff');
+        metalGrad.addColorStop(0.7, '#888888');
+        metalGrad.addColorStop(1, '#222222');
 
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
+        ctx.fillStyle = metalGrad;
         ctx.fill();
-        ctx.strokeStyle = '#111';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.isGoalKeeper ? '#ffea00' : '#111';
+        ctx.lineWidth = this.isGoalKeeper ? 2 : 1;
         ctx.stroke();
 
-        // Identificação das equipes
+        // Miolo da peça com a Identidade Visual do Clube
+        const innerRadius = Math.max(1, this.radius - 3.8);
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius - 3, 0, Math.PI * 2);
+        ctx.arc(0, 0, innerRadius, 0, Math.PI * 2);
+        ctx.clip(); // Restringe os padrões visuais ao centro da peça
 
-        if (this.team === 'brazil') {
-            ctx.fillStyle = '#ffeb3b';
-            ctx.fill();
+        if (teamConfig) {
+            if (this.isGoalKeeper) {
+                ctx.fillStyle = teamConfig.gkBody;
+                ctx.fillRect(-innerRadius, -innerRadius, innerRadius * 2, innerRadius * 2);
 
-            ctx.beginPath();
-            ctx.arc(0, 0, 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#2e7d32';
-            ctx.fill();
-        } else {
-            ctx.fillStyle = '#4fc3f7';
-            ctx.fill();
+                ctx.beginPath();
+                ctx.arc(0, 0, innerRadius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = teamConfig.gkDetail;
+                ctx.fill();
+            } else {
+                ctx.fillStyle = teamConfig.primaryColor;
+                ctx.fillRect(-innerRadius, -innerRadius, innerRadius * 2, innerRadius * 2);
 
-            ctx.beginPath();
-            ctx.arc(0, 0, 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
+                // Aplicação dos Padrões por Clube
+                if (teamConfig.pattern === 'horizontal') {
+                    ctx.fillStyle = teamConfig.secondaryColor;
+                    ctx.fillRect(-innerRadius, -innerRadius * 0.35, innerRadius * 2, innerRadius * 0.7);
+                    if (teamConfig.id === 'saopaulo') {
+                        // Detalhe tricolor adicional para o São Paulo
+                        ctx.fillStyle = '#c62828';
+                        ctx.fillRect(-innerRadius, -innerRadius * 0.1, innerRadius * 2, innerRadius * 0.2);
+                    }
+                } else if (teamConfig.pattern === 'diagonal') {
+                    ctx.fillStyle = teamConfig.secondaryColor;
+                    ctx.beginPath();
+                    ctx.moveTo(-innerRadius, innerRadius * 0.6);
+                    ctx.lineTo(innerRadius * 0.6, -innerRadius);
+                    ctx.lineTo(innerRadius, -innerRadius);
+                    ctx.lineTo(-innerRadius, innerRadius);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.fillStyle = teamConfig.accentColor;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, innerRadius * 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (teamConfig.pattern === 'vertical') {
+                    ctx.fillStyle = teamConfig.secondaryColor;
+                    ctx.fillRect(-innerRadius * 0.4, -innerRadius, innerRadius * 0.8, innerRadius * 2);
+
+                    ctx.fillStyle = teamConfig.accentColor;
+                    ctx.fillRect(-innerRadius * 0.15, -innerRadius, innerRadius * 0.3, innerRadius * 2);
+                } else if (teamConfig.pattern === 'solid') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, innerRadius * 0.45, 0, Math.PI * 2);
+                    ctx.fillStyle = teamConfig.secondaryColor;
+                    ctx.fill();
+                }
+            }
         }
 
         ctx.restore();
@@ -109,40 +256,57 @@ class Game {
         this.ctx = canvas.getContext('2d');
         this.physics = new PhysicsEngine();
 
-        // Dimensões do Campo
-        this.margin = 40;
+        this.marginHorizontal = 85;
+        this.marginVertical = 45;
         this.bounds = {
-            left: this.margin,
-            right: this.canvas.width - this.margin,
-            top: this.margin,
-            bottom: this.canvas.height - this.margin
+            left: this.marginHorizontal,
+            right: this.canvas.width - this.marginHorizontal,
+            top: this.marginVertical,
+            bottom: this.canvas.height - this.marginVertical
         };
 
-        // Gols
-        const goalSize = 140;
+        const goalSize = 82.0;
         const centerY = this.canvas.height / 2;
 
         this.goals = {
             left: {
                 top: centerY - goalSize / 2,
                 bottom: centerY + goalSize / 2,
-                depth: 30
+                depth: 38
             },
             right: {
                 top: centerY - goalSize / 2,
                 bottom: centerY + goalSize / 2,
-                depth: 30
+                depth: 38
             }
         };
 
-        // Estado do Jogo
-        this.score = { brazil: 0, argentina: 0 };
-        this.currentTurn = 'brazil';
+        this.p1TeamKey = 'flamengo';
+        this.aiTeamKey = 'vasco';
+
+        this.score = { p1: 0, ai: 0 };
+        this.currentTurn = 'p1';
         this.isAiming = false;
         this.dragStart = new Vector2D(0, 0);
         this.dragCurrent = new Vector2D(0, 0);
         this.goalScoredLocked = false;
         this.aiThinking = false;
+        
+        // Controle da Regra de Saída de Bola
+        this.isKickoffState = true;
+        
+        // Comemoração de Gol
+        this.isCelebrating = false;
+        this.celebrationTimer = 0;
+        this.celebrationDuration = 120;
+        this.celebratingTeam = null;
+        this.celebrationParticles = [];
+        this.flashAlpha = 0;
+
+        // Callbacks
+        this.onGoalScoredCallback = null;
+        this.onFirstShotCallback = null;
+        this.onGoalAnimationEndCallback = null;
 
         this.coin = new Coin(this.canvas.width / 2, this.canvas.height / 2);
         this.pegs = [];
@@ -152,72 +316,57 @@ class Game {
         this.initPosts();
     }
 
-    // Inicializa os 11 pregos de cada seleção
+    setTeams(p1TeamKey, aiTeamKey) {
+        this.p1TeamKey = p1TeamKey;
+        this.aiTeamKey = aiTeamKey;
+        this.initPegs();
+    }
+
     initPegs() {
         this.pegs = [];
 
         const w = this.canvas.width;
         const h = this.canvas.height;
 
-        // Formação inicial do Brasil: 4-3-3
-        const brazilPositions = [
-            // Goleiro
-            { x: w * 0.12, y: h * 0.50 },
-
-            // Defesa - 4 jogadores
-            { x: w * 0.20, y: h * 0.18 },
-            { x: w * 0.20, y: h * 0.39 },
-            { x: w * 0.20, y: h * 0.61 },
-            { x: w * 0.20, y: h * 0.82 },
-
-            // Meio-campo - 3 jogadores
-            { x: w * 0.32, y: h * 0.25 },
-            { x: w * 0.32, y: h * 0.50 },
-            { x: w * 0.32, y: h * 0.75 },
-
-            // Ataque - 3 jogadores
-            { x: w * 0.44, y: h * 0.25 },
-            { x: w * 0.44, y: h * 0.50 },
-            { x: w * 0.44, y: h * 0.75 }
+        const p1Positions = [
+            { x: w * 0.082, y: h * 0.50 }, 
+            { x: w * 0.18, y: h * 0.24 }, { x: w * 0.18, y: h * 0.41 },
+            { x: w * 0.18, y: h * 0.59 }, { x: w * 0.18, y: h * 0.76 },
+            { x: w * 0.29, y: h * 0.30 }, { x: w * 0.29, y: h * 0.50 },
+            { x: w * 0.29, y: h * 0.70 },
+            { x: w * 0.41, y: h * 0.27 }, { x: w * 0.41, y: h * 0.50 },
+            { x: w * 0.41, y: h * 0.73 }
         ];
 
-        // Formação inicial da Argentina: 4-4-2
-        const argentinaPositions = [
-            // Goleiro
-            { x: w * 0.88, y: h * 0.50 },
-
-            // Defesa - 4 jogadores
-            { x: w * 0.80, y: h * 0.18 },
-            { x: w * 0.80, y: h * 0.39 },
-            { x: w * 0.80, y: h * 0.61 },
-            { x: w * 0.80, y: h * 0.82 },
-
-            // Meio-campo - 4 jogadores
-            { x: w * 0.68, y: h * 0.18 },
-            { x: w * 0.68, y: h * 0.39 },
-            { x: w * 0.68, y: h * 0.61 },
-            { x: w * 0.68, y: h * 0.82 },
-
-            // Ataque - 2 jogadores
-            { x: w * 0.56, y: h * 0.35 },
-            { x: w * 0.56, y: h * 0.65 }
+        const aiPositions = [
+            { x: w * 0.918, y: h * 0.50 }, 
+            { x: w * 0.82, y: h * 0.24 }, { x: w * 0.82, y: h * 0.41 },
+            { x: w * 0.82, y: h * 0.59 }, { x: w * 0.82, y: h * 0.76 },
+            { x: w * 0.71, y: h * 0.30 }, { x: w * 0.71, y: h * 0.50 },
+            { x: w * 0.71, y: h * 0.70 },
+            { x: w * 0.59, y: h * 0.27 }, { x: w * 0.59, y: h * 0.50 },
+            { x: w * 0.59, y: h * 0.73 }
         ];
 
-        brazilPositions.forEach(p => {
-            this.pegs.push(new Peg(p.x, p.y, 'brazil'));
+        p1Positions.forEach((p, idx) => {
+            const isGK = (idx === 0);
+            const radius = isGK ? 10.4 : 9.6;
+            this.pegs.push(new Peg(p.x, p.y, this.p1TeamKey, radius, isGK));
         });
 
-        argentinaPositions.forEach(p => {
-            this.pegs.push(new Peg(p.x, p.y, 'argentina'));
+        aiPositions.forEach((p, idx) => {
+            const isGK = (idx === 0);
+            const radius = isGK ? 10.4 : 9.6;
+            this.pegs.push(new Peg(p.x, p.y, this.aiTeamKey, radius, isGK));
         });
     }
 
     initPosts() {
         this.posts = [
-            new Peg(this.bounds.left, this.goals.left.top, 'none', 5),
-            new Peg(this.bounds.left, this.goals.left.bottom, 'none', 5),
-            new Peg(this.bounds.right, this.goals.right.top, 'none', 5),
-            new Peg(this.bounds.right, this.goals.right.bottom, 'none', 5)
+            new Peg(this.bounds.left, this.goals.left.top, 'none', 5.5),
+            new Peg(this.bounds.left, this.goals.left.bottom, 'none', 5.5),
+            new Peg(this.bounds.right, this.goals.right.top, 'none', 5.5),
+            new Peg(this.bounds.right, this.goals.right.bottom, 'none', 5.5)
         ];
     }
 
@@ -231,6 +380,8 @@ class Game {
         this.coin.isMoving = false;
         this.goalScoredLocked = false;
         this.aiThinking = false;
+        this.isCelebrating = false;
+        this.isKickoffState = true; // Ativa a restrição da saída de bola
 
         if (startingTeam) {
             this.currentTurn = startingTeam;
@@ -238,12 +389,20 @@ class Game {
     }
 
     resetFullGame() {
-        this.score = { brazil: 0, argentina: 0 };
-        this.resetCoin('brazil');
+        this.score = { p1: 0, ai: 0 };
+        this.isCelebrating = false;
+        this.resetCoin('p1');
     }
 
     update() {
+        if (this.isCelebrating) {
+            this.updateCelebration();
+            return;
+        }
+
         const wasMoving = this.coin.isMoving;
+
+        this.updateGoalKeepers();
 
         this.physics.updateCoin(this.coin);
 
@@ -267,11 +426,13 @@ class Game {
             !this.coin.isMoving &&
             !this.goalScoredLocked
         ) {
+            // A jogada terminou e a moeda parou. A saída de bola oficial se encerra aqui.
+            this.isKickoffState = false;
             this.switchTurn();
         }
 
         if (
-            this.currentTurn === 'argentina' &&
+            this.currentTurn === 'ai' &&
             !this.coin.isMoving &&
             !this.aiThinking &&
             !this.goalScoredLocked
@@ -280,56 +441,161 @@ class Game {
         }
     }
 
+    updateGoalKeepers() {
+        const gkSpeed = 1.2;
+        const p1Gk = this.pegs.find((p, idx) => idx === 0);
+        const aiGk = this.pegs.find((p, idx) => idx === 11);
+
+        if (p1Gk && aiGk) {
+            const minAllowedY = this.goals.left.top + p1Gk.radius + 2;
+            const maxAllowedY = this.goals.left.bottom - p1Gk.radius - 2;
+
+            p1Gk.position.y += gkSpeed * p1Gk.gkDirection;
+            if (p1Gk.position.y >= maxAllowedY) {
+                p1Gk.position.y = maxAllowedY;
+                p1Gk.gkDirection = -1;
+            } else if (p1Gk.position.y <= minAllowedY) {
+                p1Gk.position.y = minAllowedY;
+                p1Gk.gkDirection = 1;
+            }
+
+            aiGk.gkDirection = -p1Gk.gkDirection;
+            aiGk.position.y += gkSpeed * aiGk.gkDirection;
+            
+            if (aiGk.position.y > maxAllowedY) {
+                aiGk.position.y = maxAllowedY;
+            } else if (aiGk.position.y < minAllowedY) {
+                aiGk.position.y = minAllowedY;
+            }
+        }
+    }
+
     switchTurn() {
-        this.currentTurn =
-            this.currentTurn === 'brazil' ? 'argentina' : 'brazil';
+        this.currentTurn = this.currentTurn === 'p1' ? 'ai' : 'p1';
     }
 
     checkGoal() {
         const cx = this.coin.position.x;
         const cy = this.coin.position.y;
+        const r = this.coin.radius;
 
-        // Gol da Argentina
-        if (
-            cx < this.bounds.left &&
-            cy > this.goals.left.top &&
-            cy < this.goals.left.bottom
-        ) {
-            this.goalScoredLocked = true;
-            this.score.argentina++;
-            this.handleGoalScored('brazil');
+        const leftGoalPassedCompletely = (cx + r < this.bounds.left);
+        const leftVerticalValid = (cy - r >= this.goals.left.top && cy + r <= this.goals.left.bottom);
+
+        const rightGoalPassedCompletely = (cx - r > this.bounds.right);
+        const rightVerticalValid = (cy - r >= this.goals.right.top && cy + r <= this.goals.right.bottom);
+
+        if (leftGoalPassedCompletely && leftVerticalValid) {
+            this.handleGoalScored('ai', this.goals.left);
         }
-
-        // Gol do Brasil
-        else if (
-            cx > this.bounds.right &&
-            cy > this.goals.right.top &&
-            cy < this.goals.right.bottom
-        ) {
-            this.goalScoredLocked = true;
-            this.score.brazil++;
-            this.handleGoalScored('argentina');
+        else if (rightGoalPassedCompletely && rightVerticalValid) {
+            this.handleGoalScored('p1', this.goals.right);
         }
     }
 
-    handleGoalScored(restartingTeam) {
+    handleGoalScored(scoringSide, goalObj) {
+        // Regra contra gol na saída de bola
+        if (this.isKickoffState) {
+            // Anula o gol e aplica a reversão da posse para a área defensiva do adversário
+            this.goalScoredLocked = true;
+            this.coin.velocity = new Vector2D(0, 0);
+            this.coin.isMoving = false;
+            this.aiThinking = false;
+            this.isCelebrating = false;
+
+            // Reversão da posse e posicionamento seguro na área defensiva adversária (tiro de meta)
+            const defendingSide = scoringSide === 'p1' ? 'ai' : 'p1';
+            this.currentTurn = defendingSide;
+
+            if (defendingSide === 'ai') {
+                // Posiciona próximo ao gol da IA (lado direito)
+                this.coin.position = new Vector2D(this.bounds.right - 60, this.canvas.height / 2);
+            } else {
+                // Posiciona próximo ao gol do P1 (lado esquerdo)
+                this.coin.position = new Vector2D(this.bounds.left + 60, this.canvas.height / 2);
+            }
+
+            // Libera o travamento para o próximo lance já sem a restrição de saída
+            setTimeout(() => {
+                this.goalScoredLocked = false;
+                this.isKickoffState = false;
+            }, 500);
+            return;
+        }
+
+        // Fluxo normal de gol válido
+        this.goalScoredLocked = true;
+        if (scoringSide === 'ai') {
+            this.score.ai++;
+            this.startGoalCelebration(TEAMS[this.aiTeamKey].name, goalObj);
+        } else {
+            this.score.p1++;
+            this.startGoalCelebration(TEAMS[this.p1TeamKey].name, goalObj);
+        }
+        if (this.onGoalScoredCallback) this.onGoalScoredCallback(scoringSide);
+    }
+
+    startGoalCelebration(teamName, goalObj) {
+        this.isCelebrating = true;
+        this.celebrationTimer = 0;
+        this.celebratingTeam = teamName;
         this.coin.velocity = new Vector2D(0, 0);
         this.coin.isMoving = false;
+        this.aiThinking = false;
+        this.flashAlpha = 0.8;
 
-        setTimeout(() => {
-            this.resetCoin(restartingTeam);
-        }, 1200);
+        this.celebrationParticles = [];
+        const goalCenterX = goalObj === this.goals.left ? this.bounds.left : this.bounds.right;
+        const goalCenterY = (goalObj.top + goalObj.bottom) / 2;
+
+        const particleCount = 40;
+        for (let i = 0; i < particleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 6;
+            const color = (Math.random() > 0.5 ? '#ffdc45' : '#ffffff');
+
+            this.celebrationParticles.push({
+                x: goalCenterX,
+                y: goalCenterY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius: 3 + Math.random() * 5,
+                alpha: 1.0,
+                color: color,
+                decay: 0.015 + Math.random() * 0.015
+            });
+        }
     }
 
-    // =====================================================
-    // INTELIGÊNCIA ARTIFICIAL MELHORADA
-    // =====================================================
+    updateCelebration() {
+        this.celebrationTimer++;
+        if (this.flashAlpha > 0) {
+            this.flashAlpha -= 0.02;
+        }
+
+        for (const p of this.celebrationParticles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.96;
+            p.vy *= 0.96;
+            p.alpha -= p.decay;
+        }
+
+        if (this.celebrationTimer >= this.celebrationDuration) {
+            this.isCelebrating = false;
+            const restartingTeam = this.celebratingTeam === TEAMS[this.p1TeamKey].name ? 'ai' : 'p1';
+            this.resetCoin(restartingTeam);
+            if (this.onGoalAnimationEndCallback) {
+                this.onGoalAnimationEndCallback();
+            }
+        }
+    }
 
     triggerAiTurn() {
         this.aiThinking = true;
 
         setTimeout(() => {
-            if (this.coin.isMoving || this.goalScoredLocked) {
+            if (this.coin.isMoving || this.goalScoredLocked || this.isCelebrating) {
                 this.aiThinking = false;
                 return;
             }
@@ -343,13 +609,13 @@ class Game {
                 );
 
                 this.coin.isMoving = true;
+                if (this.onFirstShotCallback) this.onFirstShotCallback();
             }
 
             this.aiThinking = false;
         }, 800);
     }
 
-    // Testa várias trajetórias sem modificar a partida real.
     simulateAiShot(angle, power) {
         const simulatedCoin = {
             position: new Vector2D(
@@ -380,7 +646,6 @@ class Game {
         const goalCenterY =
             (this.goals.left.top + this.goals.left.bottom) / 2;
 
-        // Simula até 500 quadros da jogada.
         for (let frame = 0; frame < 500; frame++) {
             this.physics.updateCoin(simulatedCoin);
 
@@ -400,7 +665,6 @@ class Game {
                 simulatedCoin.position.x
             );
 
-            // Distância até a região do gol adversário.
             const distanceToGoal = Math.sqrt(
                 Math.pow(simulatedCoin.position.x - this.bounds.left, 2) +
                 Math.pow(simulatedCoin.position.y - goalCenterY, 2)
@@ -411,21 +675,23 @@ class Game {
                 distanceToGoal
             );
 
-            // A Argentina marcou.
+            const simCx = simulatedCoin.position.x;
+            const simCy = simulatedCoin.position.y;
+            const simR = simulatedCoin.radius;
+
             if (
-                simulatedCoin.position.x < this.bounds.left &&
-                simulatedCoin.position.y > this.goals.left.top &&
-                simulatedCoin.position.y < this.goals.left.bottom
+                simCx + simR < this.bounds.left &&
+                simCy - simR >= this.goals.left.top &&
+                simCy + simR <= this.goals.left.bottom
             ) {
                 scoredGoal = true;
                 break;
             }
 
-            // A Argentina não deve marcar contra o próprio gol.
             if (
-                simulatedCoin.position.x > this.bounds.right &&
-                simulatedCoin.position.y > this.goals.right.top &&
-                simulatedCoin.position.y < this.goals.right.bottom
+                simCx - simR > this.bounds.right &&
+                simCy - simR >= this.goals.right.top &&
+                simCy + simR <= this.goals.right.bottom
             ) {
                 ownGoal = true;
                 break;
@@ -448,38 +714,33 @@ class Game {
         };
     }
 
-    // Compara os resultados das jogadas simuladas.
     evaluateAiShot(result) {
         if (result.ownGoal) {
             return -100000;
         }
 
         if (result.scoredGoal) {
+            // Se estiver em estado de saída de bola, a IA evita chutar direto para o gol para não sofrer reversão
+            if (this.isKickoffState) {
+                return -50000;
+            }
             return 100000;
         }
 
         let score = 0;
-
-        // Premia a moeda avançar em direção ao gol brasileiro.
         score += result.progress * 0.75;
-
-        // Premia trajetórias que chegam perto do gol.
         score -= result.closestGoalDistance * 0.16;
-
-        // Pequena variação para a IA não escolher sempre a mesma jogada.
         score += (Math.random() - 0.5) * 8;
 
         return score;
     }
 
-    // Procura a melhor combinação de ângulo e força.
     findBestAiShot() {
         const candidates = [];
 
         const goalTop = this.goals.left.top + 12;
         const goalBottom = this.goals.left.bottom - 12;
 
-        // Vários pontos de mira dentro da abertura do gol.
         const targetPoints = [];
 
         for (let y = goalTop; y <= goalBottom; y += 14) {
@@ -489,7 +750,6 @@ class Game {
             });
         }
 
-        // Também testa alguns pontos mais próximos do centro.
         targetPoints.push(
             {
                 x: this.bounds.left - 15,
@@ -505,8 +765,7 @@ class Game {
             }
         );
 
-        // Diferentes forças para cada direção.
-        const powers = [6, 8, 10, 12, 14, 15];
+        const powers = [8, 11, 13, 16, 18, 21];
 
         for (const target of targetPoints) {
             const direction = new Vector2D(
@@ -516,7 +775,6 @@ class Game {
 
             const baseAngle = direction.heading();
 
-            // Variações angulares para procurar corredores livres.
             const angleOffsets = [
                 -0.24,
                 -0.16,
@@ -530,8 +788,6 @@ class Game {
             for (const offset of angleOffsets) {
                 const angle = baseAngle + offset;
 
-                // A Argentina ataca para a esquerda.
-                // Não considera chutes iniciais para a direita.
                 if (Math.cos(angle) >= -0.05) {
                     continue;
                 }
@@ -559,10 +815,8 @@ class Game {
 
         candidates.sort((a, b) => b.score - a.score);
 
-        // Escolhe entre as melhores jogadas para manter variedade.
         const bestCandidates = candidates.slice(0, 5);
 
-        // Se houver uma jogada que marca gol, prioriza essa opção.
         const scoringShot = bestCandidates.find(
             candidate => candidate.scoredGoal
         );
@@ -577,10 +831,6 @@ class Game {
 
         return bestCandidates[chosenIndex];
     }
-
-    // =====================================================
-    // RENDERIZAÇÃO
-    // =====================================================
 
     draw() {
         this.ctx.clearRect(
@@ -598,13 +848,62 @@ class Game {
 
         if (
             this.isAiming &&
-            this.currentTurn === 'brazil' &&
-            !this.aiThinking
+            this.currentTurn === 'p1' &&
+            !this.aiThinking &&
+            !this.isCelebrating
         ) {
             this.drawAimLine();
         }
 
         this.coin.draw(this.ctx);
+
+        if (this.isCelebrating) {
+            this.drawCelebrationEffects();
+        }
+    }
+
+    drawCelebrationEffects() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        if (this.flashAlpha > 0) {
+            ctx.fillStyle = `rgba(255, 220, 69, ${this.flashAlpha * 0.35})`;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        for (const p of this.celebrationParticles) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        const scaleAnim = 1 + Math.sin(this.celebrationTimer * 0.15) * 0.1;
+        ctx.save();
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 2 - 40);
+        ctx.scale(scaleAnim, scaleAnim);
+
+        ctx.font = '900 64px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = '#0b1411';
+        ctx.strokeText('GOOOOL!', 0, 0);
+
+        ctx.fillStyle = '#ffdc45';
+        ctx.fillText('GOOOOL!', 0, 0);
+        ctx.restore();
+
+        ctx.font = '800 24px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        const teamText = `GOL DO ${this.celebratingTeam}!`;
+        ctx.fillText(teamText, this.canvas.width / 2, this.canvas.height / 2 + 25);
+
+        ctx.restore();
     }
 
     drawWoodBorderAndGreenField() {
@@ -637,7 +936,7 @@ class Game {
         );
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-        const stripWidth = 80;
+        const stripWidth = (this.bounds.right - this.bounds.left) / 10;
 
         for (
             let x = this.bounds.left;
@@ -678,7 +977,7 @@ class Game {
         ctx.arc(
             centerX,
             this.canvas.height / 2,
-            60,
+            55,
             0,
             Math.PI * 2
         );
@@ -695,8 +994,8 @@ class Game {
         ctx.fillStyle = '#fff';
         ctx.fill();
 
-        const areaWidth = 100;
-        const areaHeight = 220;
+        const areaWidth = (this.bounds.right - this.bounds.left) * 0.15;
+        const areaHeight = (this.bounds.bottom - this.bounds.top) * 0.45;
         const centerY = this.canvas.height / 2;
 
         ctx.strokeRect(
@@ -786,16 +1085,13 @@ class Game {
         ctx.restore();
     }
 
-    // =====================================================
-    // CONTROLES DE MOUSE (APENAS BRASIL)
-    // =====================================================
-
     handleMouseDown(pos) {
         if (
             this.coin.isMoving ||
-            this.currentTurn !== 'brazil' ||
+            this.currentTurn !== 'p1' ||
             this.aiThinking ||
-            this.goalScoredLocked
+            this.goalScoredLocked ||
+            this.isCelebrating
         ) {
             return;
         }
@@ -824,13 +1120,14 @@ class Game {
         const distance = Math.min(dragVec.mag(), 150);
 
         if (distance > 10) {
-            const powerFactor = 0.15;
+            const powerFactor = 0.22;
             const impulse = dragVec.normalize().mult(
                 distance * powerFactor
             );
 
             this.coin.velocity = impulse;
             this.coin.isMoving = true;
+            if (this.onFirstShotCallback) this.onFirstShotCallback();
         }
     }
 }

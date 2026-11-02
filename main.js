@@ -1,6 +1,7 @@
 /**
  * INICIALIZAÇÃO, NAVEGAÇÃO DE MENUS E INTEGRAÇÃO DE INTERFACE
- * Inclui seleção de formação, posicionamento manual e opções do jogo.
+ * Suporte a Seleção de Clubes do Brasileirão, IA Aleatória,
+ * Cronômetro de 3 minutos, Gol de Ouro e Prévia Tática.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsScreen = document.getElementById('options-screen');
     const formationScreen = document.getElementById('formation-screen');
     const gameScreen = document.getElementById('game-screen');
+    const resultModal = document.getElementById('result-modal');
 
     const btnPlay = document.getElementById('btn-play');
     const btnOptions = document.getElementById('btn-options');
@@ -21,176 +23,205 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
     const game = new Game(canvas);
 
-    // Elementos da partida
-    const scoreBrazilEl = document.getElementById('score-brazil');
-    const scoreArgentinaEl = document.getElementById('score-argentina');
+    // Elementos do Placar
+    const scoreP1El = document.getElementById('score-p1');
+    const scoreAiEl = document.getElementById('score-ai');
+    const nameP1El = document.getElementById('name-p1');
+    const nameAiEl = document.getElementById('name-ai');
     const currentTurnEl = document.getElementById('current-turn');
-    const panelBrazil = document.getElementById('panel-brazil');
-    const panelArgentina = document.getElementById('panel-argentina');
+    const panelP1 = document.getElementById('panel-p1');
+    const panelAi = document.getElementById('panel-ai');
     const timerEl = document.getElementById('timer');
+    const matchStatusBadge = document.getElementById('match-status-badge');
     const btnRestart = document.getElementById('btn-restart');
     const btnNewGame = document.getElementById('btn-new-game');
 
-    // Elementos da tela tática
-    const tacticalField = document.getElementById('tactical-field');
+    // Elementos da Legenda Tática
+    const legendP1Dot = document.getElementById('legend-p1-dot');
+    const legendP1Text = document.getElementById('legend-p1-text');
+    const legendAiDot = document.getElementById('legend-ai-dot');
+    const legendAiText = document.getElementById('legend-ai-text');
+
+    // Elementos do Modal de Resultado
+    const resultTitle = document.getElementById('result-title');
+    const resultSubtitle = document.getElementById('result-subtitle');
+    const btnPlayAgain = document.getElementById('btn-play-again');
+    const btnBackMenu = document.getElementById('btn-back-menu');
+
+    // Elementos da Tela Tática e de Seleção
     const tacticalPegs = document.getElementById('tactical-pegs');
     const formationStatus = document.getElementById('formation-status');
     const formationButtons = document.querySelectorAll('.formation-choice');
-
-    /*
-     * Cada formação possui 11 posições:
-     * 1 goleiro + 10 jogadores de linha.
-     *
-     * As coordenadas são porcentagens do campo tático.
-     *
-     * O limite mínimo de X é 12%, mantendo os jogadores
-     * afastados da região imediata do próprio gol.
-     */
+    const teamButtons = document.querySelectorAll('.team-choice');
 
     const formations = {
         '433': {
             name: '4-3-3',
             positions: [
-                // Goleiro
-                { x: 12, y: 50 },
-
-                // Defesa - 4 jogadores
-                { x: 20, y: 18 },
-                { x: 20, y: 39 },
-                { x: 20, y: 61 },
-                { x: 20, y: 82 },
-
-                // Meio-campo - 3 jogadores
-                { x: 32, y: 25 },
-                { x: 32, y: 50 },
-                { x: 32, y: 75 },
-
-                // Ataque - 3 jogadores
-                { x: 44, y: 25 },
-                { x: 44, y: 50 },
-                { x: 44, y: 75 }
+                { x: 8.2, y: 50 },
+                { x: 18, y: 24 }, { x: 18, y: 41 }, { x: 18, y: 59 }, { x: 18, y: 76 },
+                { x: 29, y: 30 }, { x: 29, y: 50 }, { x: 29, y: 70 },
+                { x: 41, y: 27 }, { x: 41, y: 50 }, { x: 41, y: 73 }
             ]
         },
-
         '442': {
             name: '4-4-2',
             positions: [
-                // Goleiro
-                { x: 12, y: 50 },
-
-                // Defesa - 4 jogadores
-                { x: 20, y: 18 },
-                { x: 20, y: 39 },
-                { x: 20, y: 61 },
-                { x: 20, y: 82 },
-
-                // Meio-campo - 4 jogadores
-                { x: 32, y: 18 },
-                { x: 32, y: 39 },
-                { x: 32, y: 61 },
-                { x: 32, y: 82 },
-
-                // Ataque - 2 jogadores
-                { x: 44, y: 35 },
-                { x: 44, y: 65 }
+                { x: 8.2, y: 50 },
+                { x: 18, y: 22 }, { x: 18, y: 40 }, { x: 18, y: 60 }, { x: 18, y: 78 },
+                { x: 29, y: 22 }, { x: 29, y: 41 }, { x: 29, y: 59 }, { x: 29, y: 78 },
+                { x: 41, y: 36 }, { x: 41, y: 64 }
             ]
         },
-
         '352': {
             name: '3-5-2',
             positions: [
-                // Goleiro
-                { x: 12, y: 50 },
-
-                // Defesa - 3 jogadores
-                { x: 20, y: 25 },
-                { x: 20, y: 50 },
-                { x: 20, y: 75 },
-
-                // Meio-campo - 5 jogadores
-                { x: 32, y: 12 },
-                { x: 32, y: 31 },
-                { x: 32, y: 50 },
-                { x: 32, y: 69 },
-                { x: 32, y: 88 },
-
-                // Ataque - 2 jogadores
-                { x: 44, y: 35 },
-                { x: 44, y: 65 }
+                { x: 8.2, y: 50 },
+                { x: 18, y: 28 }, { x: 18, y: 50 }, { x: 18, y: 72 },
+                { x: 29, y: 18 }, { x: 29, y: 34 }, { x: 29, y: 50 }, { x: 29, y: 66 }, { x: 29, y: 82 },
+                { x: 41, y: 36 }, { x: 41, y: 64 }
             ]
         },
-
         '532': {
             name: '5-3-2',
             positions: [
-                // Goleiro
-                { x: 12, y: 50 },
-
-                // Defesa - 5 jogadores
-                { x: 20, y: 12 },
-                { x: 20, y: 31 },
-                { x: 20, y: 50 },
-                { x: 20, y: 69 },
-                { x: 20, y: 88 },
-
-                // Meio-campo - 3 jogadores
-                { x: 32, y: 25 },
-                { x: 32, y: 50 },
-                { x: 32, y: 75 },
-
-                // Ataque - 2 jogadores
-                { x: 44, y: 35 },
-                { x: 44, y: 65 }
+                { x: 8.2, y: 50 },
+                { x: 18, y: 18 }, { x: 18, y: 34 }, { x: 18, y: 50 }, { x: 18, y: 66 }, { x: 18, y: 82 },
+                { x: 29, y: 27 }, { x: 29, y: 50 }, { x: 29, y: 73 },
+                { x: 41, y: 36 }, { x: 41, y: 64 }
+            ]
+        },
+        '4231': {
+            name: '4-2-3-1',
+            positions: [
+                { x: 8.2, y: 50 },
+                { x: 18, y: 22 }, { x: 18, y: 40 }, { x: 18, y: 60 }, { x: 18, y: 78 },
+                { x: 27, y: 37 }, { x: 27, y: 63 },
+                { x: 36, y: 27 }, { x: 36, y: 50 }, { x: 36, y: 73 },
+                { x: 43, y: 50 }
+            ]
+        },
+        '4141': {
+            name: '4-1-4-1',
+            positions: [
+                { x: 8.2, y: 50 },
+                { x: 18, y: 22 }, { x: 18, y: 40 }, { x: 18, y: 60 }, { x: 18, y: 78 },
+                { x: 27, y: 50 },
+                { x: 36, y: 22 }, { x: 36, y: 40 }, { x: 36, y: 60 }, { x: 36, y: 78 },
+                { x: 43, y: 50 }
+            ]
+        },
+        '343': {
+            name: '3-4-3',
+            positions: [
+                { x: 8.2, y: 50 },
+                { x: 18, y: 28 }, { x: 18, y: 50 }, { x: 18, y: 72 },
+                { x: 29, y: 22 }, { x: 29, y: 40 }, { x: 29, y: 60 }, { x: 29, y: 78 },
+                { x: 41, y: 27 }, { x: 41, y: 50 }, { x: 41, y: 73 }
+            ]
+        },
+        '541': {
+            name: '5-4-1',
+            positions: [
+                { x: 8.2, y: 50 },
+                { x: 18, y: 18 }, { x: 18, y: 34 }, { x: 18, y: 50 }, { x: 18, y: 66 }, { x: 18, y: 82 },
+                { x: 29, y: 22 }, { x: 29, y: 40 }, { x: 29, y: 60 }, { x: 29, y: 78 },
+                { x: 43, y: 50 }
+            ]
+        },
+        '3421': {
+            name: '3-4-2-1',
+            positions: [
+                { x: 8.2, y: 50 },
+                { x: 18, y: 28 }, { x: 18, y: 50 }, { x: 18, y: 72 },
+                { x: 28, y: 22 }, { x: 28, y: 40 }, { x: 28, y: 60 }, { x: 28, y: 78 },
+                { x: 37, y: 36 }, { x: 37, y: 64 },
+                { x: 43, y: 50 }
             ]
         }
     };
 
+    let selectedP1Team = 'flamengo';
+    let selectedAiTeam = 'vasco';
     let selectedFormation = '433';
     let selectedAiFormation = '442';
-    let customBrazilPositions = [];
-    let draggingPeg = null;
 
-    let secondsElapsed = 0;
+    let timeLeft = 180; // 3 minutos em segundos
     let timerInterval = null;
+    let isTimerRunning = false;
+    let isGoldGoalMode = false;
+    let matchEnded = false;
 
     // =====================================================
-    // OPÇÕES E TELA CHEIA
+    // SELEÇÃO DE TIMES E IA ALEATÓRIA
+    // =====================================================
+
+    function selectAiTeamRandomly() {
+        const availableTeams = Object.keys(TEAMS).filter(t => t !== selectedP1Team);
+        const randomIndex = Math.floor(Math.random() * availableTeams.length);
+        selectedAiTeam = availableTeams[randomIndex];
+    }
+
+    function updateTeamSelectionUI() {
+        teamButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.team === selectedP1Team);
+        });
+
+        const p1Config = TEAMS[selectedP1Team];
+        const aiConfig = TEAMS[selectedAiTeam];
+
+        // Atualiza a legenda da prévia tática
+        legendP1Dot.style.background = p1Config.primaryColor;
+        legendP1Dot.style.border = `2px solid ${p1Config.secondaryColor}`;
+        legendP1Text.textContent = `${p1Config.name}`;
+
+        legendAiDot.style.background = aiConfig.primaryColor;
+        legendAiDot.style.border = `2px solid ${aiConfig.secondaryColor}`;
+        legendAiText.textContent = `${aiConfig.name} (IA)`;
+
+        // Atualiza o placar
+        nameP1El.textContent = p1Config.name;
+        nameAiEl.textContent = aiConfig.name;
+
+        panelP1.style.borderLeftColor = p1Config.primaryColor;
+        panelAi.style.borderRightColor = aiConfig.primaryColor;
+    }
+
+    teamButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedP1Team = btn.dataset.team;
+            selectAiTeamRandomly();
+            updateTeamSelectionUI();
+            game.setTeams(selectedP1Team, selectedAiTeam);
+            renderTacticalPreview();
+        });
+    });
+
+    // =====================================================
+    // TELA CHEIA
     // =====================================================
 
     function updateFullscreenInterface() {
         const isFullscreen = Boolean(document.fullscreenElement);
-
-        fullscreenStatus.textContent = isFullscreen
-            ? 'Modo tela cheia ativado'
-            : 'Modo janela';
-
-        btnFullscreen.textContent = isFullscreen
-            ? 'SAIR DA TELA CHEIA'
-            : 'ATIVAR';
-
+        fullscreenStatus.textContent = isFullscreen ? 'Modo tela cheia ativado' : 'Modo janela';
+        btnFullscreen.textContent = isFullscreen ? 'SAIR DA TELA CHEIA' : 'ATIVAR';
         btnFullscreen.classList.toggle('fullscreen-active', isFullscreen);
     }
 
     async function toggleFullscreen() {
         try {
             if (!document.fullscreenElement) {
-                if (!document.documentElement.requestFullscreen) {
-                    fullscreenStatus.textContent =
-                        'Seu navegador não oferece suporte à tela cheia.';
-                    return;
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
                 }
-
-                await document.documentElement.requestFullscreen();
             } else {
-                await document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    await document.exitFullscreen();
+                }
             }
         } catch (error) {
-            console.error('Não foi possível alterar a tela cheia:', error);
-
-            fullscreenStatus.textContent =
-                'Não foi possível alterar o modo de tela.';
+            console.error('Erro ao alternar tela cheia:', error);
         }
-
         updateFullscreenInterface();
     }
 
@@ -206,35 +237,122 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     btnFullscreen.addEventListener('click', toggleFullscreen);
-
     document.addEventListener('fullscreenchange', updateFullscreenInterface);
 
     // =====================================================
-    // CRONÔMETRO
+    // CRONÔMETRO E GOL DE OURO
     // =====================================================
 
-    function startTimer() {
+    function initTimer() {
         clearInterval(timerInterval);
-
-        secondsElapsed = 0;
+        timeLeft = 180;
+        isTimerRunning = false;
+        isGoldGoalMode = false;
+        matchEnded = false;
+        matchStatusBadge.classList.add('hidden');
         updateTimerDisplay();
+    }
 
+    function startTimerIfNeeded() {
+        if (isTimerRunning || matchEnded || isGoldGoalMode) return;
+        isTimerRunning = true;
+
+        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
-            secondsElapsed++;
-            updateTimerDisplay();
+            if (matchEnded || !isTimerRunning) return;
+
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft === 0) {
+                    handleTimeZero();
+                }
+            }
         }, 1000);
     }
 
+    function pauseTimer() {
+        isTimerRunning = false;
+        clearInterval(timerInterval);
+    }
+
     function updateTimerDisplay() {
-        const mins = String(
-            Math.floor(secondsElapsed / 60)
-        ).padStart(2, '0');
-
-        const secs = String(
-            secondsElapsed % 60
-        ).padStart(2, '0');
-
+        const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const secs = String(timeLeft % 60).padStart(2, '0');
         timerEl.textContent = `${mins}:${secs}`;
+    }
+
+    function handleTimeZero() {
+        const p1Score = game.score.p1;
+        const aiScore = game.score.ai;
+        const p1Name = TEAMS[selectedP1Team].name;
+        const aiName = TEAMS[selectedAiTeam].name;
+
+        if (p1Score > aiScore) {
+            endMatch(p1Name, 'Tempo Regulamentar', p1Score, aiScore);
+        } else if (aiScore > p1Score) {
+            endMatch(aiName, 'Tempo Regulamentar', p1Score, aiScore);
+        } else {
+            isGoldGoalMode = true;
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            timerEl.textContent = '00:00';
+            matchStatusBadge.textContent = 'GOL DE OURO';
+            matchStatusBadge.classList.remove('hidden');
+        }
+    }
+
+    // Callbacks do Jogo
+    game.onFirstShotCallback = () => {
+        if (!matchEnded && !isGoldGoalMode) {
+            startTimerIfNeeded();
+        }
+    };
+
+    game.onGoalScoredCallback = (scoringTeam) => {
+        if (matchEnded) return;
+        pauseTimer();
+
+        const p1Score = game.score.p1;
+        const aiScore = game.score.ai;
+        const p1Name = TEAMS[selectedP1Team].name;
+        const aiName = TEAMS[selectedAiTeam].name;
+
+        if (isGoldGoalMode) {
+            const winner = p1Score > aiScore ? p1Name : aiName;
+            setTimeout(() => {
+                endMatch(winner, 'Gol de Ouro', p1Score, aiScore);
+            }, 2000);
+        } else if (timeLeft === 0) {
+            const winner = p1Score > aiScore ? p1Name : (aiScore > p1Score ? aiName : null);
+            if (winner) {
+                setTimeout(() => {
+                    endMatch(winner, 'Tempo Regulamentar', p1Score, aiScore);
+                }, 2000);
+            }
+        }
+    };
+
+    game.onGoalAnimationEndCallback = () => {
+        // Cronômetro permanece congelado até o próximo chute
+    };
+
+    function endMatch(winnerName, victoryType, p1Score, aiScore) {
+        if (matchEnded) return;
+        matchEnded = true;
+        pauseTimer();
+
+        resultTitle.textContent = `${winnerName} VENCEU`;
+        if (victoryType === 'Gol de Ouro') {
+            resultSubtitle.textContent = `${winnerName} VENCEU — GOL DE OURO — ${p1Score} x ${aiScore}`;
+        } else {
+            resultSubtitle.textContent = `Placar Final — ${p1Score} x ${aiScore}`;
+        }
+
+        setTimeout(() => {
+            resultModal.classList.remove('hidden');
+        }, 1000);
     }
 
     // =====================================================
@@ -243,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCanvasMousePos(e) {
         const rect = canvas.getBoundingClientRect();
-
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
 
@@ -257,331 +374,185 @@ document.addEventListener('DOMContentLoaded', () => {
     // SISTEMA DE FORMAÇÕES
     // =====================================================
 
-    function copyFormationPositions(formationKey) {
-        return formations[formationKey].positions.map(position => ({
-            x: position.x,
-            y: position.y
-        }));
-    }
-
     function chooseAiFormation() {
-        const possibleFormations = Object.keys(formations)
-            .filter(key => key !== selectedFormation);
-
-        const randomIndex = Math.floor(
-            Math.random() * possibleFormations.length
-        );
-
+        const possibleFormations = Object.keys(formations).filter(key => key !== selectedFormation);
+        const randomIndex = Math.floor(Math.random() * possibleFormations.length);
         selectedAiFormation = possibleFormations[randomIndex];
     }
 
     function updateFormationButtons() {
         formationButtons.forEach(button => {
-            button.classList.toggle(
-                'active',
-                button.dataset.formation === selectedFormation
-            );
+            button.classList.toggle('active', button.dataset.formation === selectedFormation);
         });
 
-        formationStatus.textContent =
-            `Brasil: ${formations[selectedFormation].name} | Argentina: ${formations[selectedAiFormation].name}`;
+        const p1Name = TEAMS[selectedP1Team].name;
+        const aiName = TEAMS[selectedAiTeam].name;
+        formationStatus.textContent = `${p1Name}: ${formations[selectedFormation].name} | ${aiName}: ${formations[selectedAiFormation].name}`;
     }
 
-    function createTacticalPeg(team, index, position) {
+    function createTacticalPeg(teamKey, index, position) {
         const peg = document.createElement('div');
-
-        peg.className = `tactical-peg ${
-            team === 'brazil' ? 'brazil-peg' : 'argentina-peg'
-        }`;
-
+        peg.className = 'tactical-peg';
+        
+        const teamConfig = TEAMS[teamKey];
         peg.style.left = `${position.x}%`;
         peg.style.top = `${position.y}%`;
-
+        peg.style.background = teamConfig.primaryColor;
+        peg.style.border = `2px solid ${teamConfig.secondaryColor}`;
+        peg.style.color = teamConfig.secondaryColor === '#ffffff' ? '#ffffff' : '#ffffff';
         peg.textContent = index === 0 ? 'G' : String(index);
-
-        peg.title = team === 'brazil'
-            ? (
-                index === 0
-                    ? 'Goleiro do Brasil - arraste para posicionar'
-                    : `Jogador ${index} do Brasil - arraste para posicionar`
-            )
-            : (
-                index === 0
-                    ? 'Goleiro da Argentina'
-                    : `Jogador ${index} da Argentina`
-            );
-
-        peg.setAttribute('aria-label', peg.title);
-
-        if (team === 'brazil') {
-            peg.dataset.index = String(index);
-
-            peg.addEventListener('pointerdown', event => {
-                event.preventDefault();
-
-                draggingPeg = peg;
-                peg.classList.add('dragging');
-
-                if (typeof peg.setPointerCapture === 'function') {
-                    peg.setPointerCapture(event.pointerId);
-                }
-            });
-        }
-
         tacticalPegs.appendChild(peg);
     }
 
     function renderTacticalPreview() {
         tacticalPegs.innerHTML = '';
 
-        // Desenha os 11 pregos brasileiros
-        customBrazilPositions.forEach((position, index) => {
-            createTacticalPeg('brazil', index, position);
+        formations[selectedFormation].positions.forEach((position, index) => {
+            createTacticalPeg(selectedP1Team, index, position);
         });
 
-        // Desenha os 11 pregos argentinos espelhados
-        const aiPositions = formations[selectedAiFormation].positions;
-
-        aiPositions.forEach((position, index) => {
-            const mirroredPosition = {
-                x: 100 - position.x,
-                y: position.y
-            };
-
-            createTacticalPeg(
-                'argentina',
-                index,
-                mirroredPosition
-            );
+        formations[selectedAiFormation].positions.forEach((position, index) => {
+            const mirroredPosition = { x: 100 - position.x, y: position.y };
+            createTacticalPeg(selectedAiTeam, index, mirroredPosition);
         });
 
         updateFormationButtons();
     }
 
-    function selectFormation(formationKey) {
-        if (!formations[formationKey]) return;
+    function applyTacticalPositionsToGame() {
+        formations[selectedFormation].positions.forEach((position, index) => {
+            const peg = game.pegs[index];
+            if (!peg) return;
+            peg.position.x = (position.x / 100) * canvas.width;
+            peg.position.y = (position.y / 100) * canvas.height;
+        });
 
-        selectedFormation = formationKey;
-
-        customBrazilPositions = copyFormationPositions(
-            selectedFormation
-        );
-
-        // A IA sempre recebe uma formação diferente da escolhida.
-        chooseAiFormation();
-
-        renderTacticalPreview();
+        formations[selectedAiFormation].positions.forEach((position, index) => {
+            const peg = game.pegs[index + 11];
+            if (!peg) return;
+            peg.position.x = ((100 - position.x) / 100) * canvas.width;
+            peg.position.y = (position.y / 100) * canvas.height;
+        });
     }
 
-    function openFormationScreen() {
+    // =====================================================
+    // NAVEGAÇÃO
+    // =====================================================
+
+    btnPlay.addEventListener('click', () => {
         menuScreen.classList.add('hidden');
         optionsScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         formationScreen.classList.remove('hidden');
 
-        customBrazilPositions = copyFormationPositions(
-            selectedFormation
-        );
-
+        selectAiTeamRandomly();
         chooseAiFormation();
+        updateTeamSelectionUI();
+        game.setTeams(selectedP1Team, selectedAiTeam);
         renderTacticalPreview();
-    }
-
-    // =====================================================
-    // ARRASTE DOS PREGOS
-    // =====================================================
-
-    function updateDraggedPeg(event) {
-        if (!draggingPeg) return;
-
-        const rect = tacticalField.getBoundingClientRect();
-        const index = Number(draggingPeg.dataset.index);
-
-        let x = ((event.clientX - rect.left) / rect.width) * 100;
-        let y = ((event.clientY - rect.top) / rect.height) * 100;
-
-        /*
-         * ZONA DE SEGURANÇA:
-         *
-         * O Brasil só pode posicionar seus pregos entre 12% e 47%
-         * da largura do campo.
-         *
-         * A Argentina ocupa o lado espelhado, entre 53% e 88%.
-         *
-         * Isso impede que os jogadores fiquem colados à boca dos gols.
-         */
-
-        x = Math.max(12, Math.min(47, x));
-        y = Math.max(8, Math.min(92, y));
-
-        customBrazilPositions[index] = { x, y };
-
-        draggingPeg.style.left = `${x}%`;
-        draggingPeg.style.top = `${y}%`;
-    }
-
-    function finishPegDrag() {
-        if (!draggingPeg) return;
-
-        draggingPeg.classList.remove('dragging');
-        draggingPeg = null;
-    }
-
-    // =====================================================
-    // APLICAÇÃO DAS FORMAÇÕES NA PARTIDA
-    // =====================================================
-
-    function applyTacticalPositionsToGame() {
-        // Aplica os 11 pregos brasileiros
-        customBrazilPositions.forEach((position, index) => {
-            const peg = game.pegs[index];
-
-            if (!peg) return;
-
-            peg.position.x =
-                (position.x / 100) * canvas.width;
-
-            peg.position.y =
-                (position.y / 100) * canvas.height;
-        });
-
-        // Aplica os 11 pregos argentinos
-        const aiPositions = formations[selectedAiFormation].positions;
-
-        aiPositions.forEach((position, index) => {
-            // A Argentina começa depois dos 11 pregos brasileiros.
-            const peg = game.pegs[index + 11];
-
-            if (!peg) return;
-
-            peg.position.x =
-                ((100 - position.x) / 100) * canvas.width;
-
-            peg.position.y =
-                (position.y / 100) * canvas.height;
-        });
-    }
-
-    // =====================================================
-    // NAVEGAÇÃO DE TELAS
-    // =====================================================
-
-    btnPlay.addEventListener('click', () => {
-        openFormationScreen();
     });
 
     btnFormationBack.addEventListener('click', () => {
-        finishPegDrag();
-
         formationScreen.classList.add('hidden');
         menuScreen.classList.remove('hidden');
     });
 
     btnConfirmFormation.addEventListener('click', () => {
-        finishPegDrag();
-
         applyTacticalPositionsToGame();
         game.resetFullGame();
 
         formationScreen.classList.add('hidden');
         menuScreen.classList.add('hidden');
         optionsScreen.classList.add('hidden');
+        resultModal.classList.add('hidden');
         gameScreen.classList.remove('hidden');
 
-        startTimer();
+        initTimer();
     });
 
     formationButtons.forEach(button => {
         button.addEventListener('click', () => {
-            selectFormation(button.dataset.formation);
+            selectedFormation = button.dataset.formation;
+            chooseAiFormation();
+            renderTacticalPreview();
         });
     });
 
-    tacticalField.addEventListener('pointermove', updateDraggedPeg);
-    tacticalField.addEventListener('pointerup', finishPegDrag);
-    tacticalField.addEventListener('pointercancel', finishPegDrag);
-    tacticalField.addEventListener('lostpointercapture', finishPegDrag);
-
     btnNewGame.addEventListener('click', () => {
-        clearInterval(timerInterval);
+        pauseTimer();
+        gameScreen.classList.add('hidden');
+        resultModal.classList.add('hidden');
+        menuScreen.classList.remove('hidden');
+    });
 
+    btnPlayAgain.addEventListener('click', () => {
+        resultModal.classList.add('hidden');
+        selectAiTeamRandomly();
+        updateTeamSelectionUI();
+        game.setTeams(selectedP1Team, selectedAiTeam);
+        applyTacticalPositionsToGame();
+        game.resetFullGame();
+        initTimer();
+    });
+
+    btnBackMenu.addEventListener('click', () => {
+        resultModal.classList.add('hidden');
         gameScreen.classList.add('hidden');
         menuScreen.classList.remove('hidden');
     });
 
-    // =====================================================
-    // CONTROLES DE MOUSE DO JOGO
-    // =====================================================
-
     canvas.addEventListener('mousedown', e => {
-        game.handleMouseDown(getCanvasMousePos(e));
+        if (!matchEnded && !game.isCelebrating) game.handleMouseDown(getCanvasMousePos(e));
     });
 
     window.addEventListener('mousemove', e => {
-        game.handleMouseMove(getCanvasMousePos(e));
+        if (!matchEnded && !game.isCelebrating) game.handleMouseMove(getCanvasMousePos(e));
     });
 
     window.addEventListener('mouseup', () => {
-        game.handleMouseUp();
+        if (!matchEnded && !game.isCelebrating) game.handleMouseUp();
     });
-
-    // =====================================================
-    // BOTÃO REINICIAR POSIÇÕES
-    // Mantém o comportamento original: reposiciona a moeda.
-    // =====================================================
 
     btnRestart.addEventListener('click', () => {
-        game.resetCoin('brazil');
+        if (!matchEnded && !game.isCelebrating) {
+            game.resetCoin('p1');
+            pauseTimer();
+        }
     });
 
-    // =====================================================
-    // ATUALIZAÇÃO DA INTERFACE VISUAL
-    // =====================================================
-
     function updateUI() {
-        scoreBrazilEl.textContent = game.score.brazil;
-        scoreArgentinaEl.textContent = game.score.argentina;
+        scoreP1El.textContent = game.score.p1;
+        scoreAiEl.textContent = game.score.ai;
 
-        if (game.currentTurn === 'brazil') {
-            currentTurnEl.textContent = game.aiThinking
-                ? 'BRASIL (Aguardando...)'
-                : 'BRASIL';
+        const p1Name = TEAMS[selectedP1Team].name;
+        const aiName = TEAMS[selectedAiTeam].name;
 
-            currentTurnEl.style.color = '#ffeb3b';
-
-            panelBrazil.classList.add('active-turn');
-            panelArgentina.classList.remove('active-turn');
+        if (game.currentTurn === 'p1') {
+            currentTurnEl.textContent = game.aiThinking ? `${p1Name} (Aguardando...)` : p1Name;
+            currentTurnEl.style.color = TEAMS[selectedP1Team].primaryColor === '#111111' ? '#ffffff' : TEAMS[selectedP1Team].primaryColor;
+            panelP1.classList.add('active-turn');
+            panelAi.classList.remove('active-turn');
         } else {
-            currentTurnEl.textContent = game.aiThinking
-                ? 'ARGENTINA (Pensando...)'
-                : 'ARGENTINA';
-
-            currentTurnEl.style.color = '#4fc3f7';
-
-            panelArgentina.classList.add('active-turn');
-            panelBrazil.classList.remove('active-turn');
+            currentTurnEl.textContent = game.aiThinking ? `${aiName} (Pensando...)` : aiName;
+            currentTurnEl.style.color = TEAMS[selectedAiTeam].primaryColor === '#111111' ? '#ffffff' : TEAMS[selectedAiTeam].primaryColor;
+            panelAi.classList.add('active-turn');
+            panelP1.classList.remove('active-turn');
         }
     }
 
-    // =====================================================
-    // GAME LOOP PRINCIPAL
-    // =====================================================
-
     function gameLoop() {
-        // Só atualiza a partida quando a tela do jogo está aberta.
         if (!gameScreen.classList.contains('hidden')) {
             game.update();
             game.draw();
             updateUI();
         }
-
         requestAnimationFrame(gameLoop);
     }
 
-    // Prepara a formação inicial.
-    customBrazilPositions = copyFormationPositions(selectedFormation);
+    selectAiTeamRandomly();
     chooseAiFormation();
-
+    updateTeamSelectionUI();
+    game.setTeams(selectedP1Team, selectedAiTeam);
     updateFullscreenInterface();
     gameLoop();
 });

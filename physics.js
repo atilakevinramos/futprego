@@ -23,9 +23,9 @@ class Vector2D {
 
 class PhysicsEngine {
     constructor() {
-        this.friction = 0.985; // Atrito no gramado
-        this.maxSpeed = 18;    // Limite de velocidade máxima da moeda
-        this.minSpeed = 0.05;  // Limiar para considerar parada
+        this.friction = 0.985;   // Atrito no gramado
+        this.maxSpeed = 18;      // Limite de velocidade máxima da moeda
+        this.minSpeed = 0.05;    // Limiar para considerar parada
         this.restitution = 0.75; // Elasticidade das colisões
     }
 
@@ -76,7 +76,10 @@ class PhysicsEngine {
         const r = coin.radius;
         const e = this.restitution;
 
-        // Limites Verticais (Teto e Chão)
+        const inLeftGoalY = coin.position.y - r >= goals.left.top && coin.position.y + r <= goals.left.bottom;
+        const inRightGoalY = coin.position.y - r >= goals.right.top && coin.position.y + r <= goals.right.bottom;
+
+        // Limites Verticais Globais (Fora das aberturas de gol)
         if (coin.position.y - r < bounds.top) {
             coin.position.y = bounds.top + r;
             coin.velocity.y *= -e;
@@ -85,19 +88,29 @@ class PhysicsEngine {
             coin.velocity.y *= -e;
         }
 
-        // Parede Esquerda (fora da boca do gol)
-        if (coin.position.x - r < bounds.left) {
-            const inGoalY = coin.position.y > goals.left.top && coin.position.y < goals.left.bottom;
-            if (!inGoalY) {
+        // Baliza Esquerda
+        const leftGoalBack = bounds.left - goals.left.depth;
+        if (coin.position.x < bounds.left) {
+            if (inLeftGoalY) {
+                if (coin.position.x - r < leftGoalBack) {
+                    coin.position.x = leftGoalBack + r;
+                    coin.velocity.x *= -e;
+                }
+            } else {
                 coin.position.x = bounds.left + r;
                 coin.velocity.x *= -e;
             }
         }
 
-        // Parede Direita (fora da boca do gol)
-        if (coin.position.x + r > bounds.right) {
-            const inGoalY = coin.position.y > goals.right.top && coin.position.y < goals.right.bottom;
-            if (!inGoalY) {
+        // Baliza Direita
+        const rightGoalBack = bounds.right + goals.right.depth;
+        if (coin.position.x > bounds.right) {
+            if (inRightGoalY) {
+                if (coin.position.x + r > rightGoalBack) {
+                    coin.position.x = rightGoalBack - r;
+                    coin.velocity.x *= -e;
+                }
+            } else {
                 coin.position.x = bounds.right - r;
                 coin.velocity.x *= -e;
             }

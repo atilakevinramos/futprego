@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#101a17">
-    <title>Futebol de Prego 1.2 - Brasil x Argentina</title>
+    <title>Futebol de Prego 1.2 - Brasileirão</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
     <div id="menu-screen" class="screen">
         <div class="menu-box">
             <div class="game-brand">
-                <span class="brand-kicker">BRASIL × ARGENTINA</span>
+                <span class="brand-kicker">EDIÇÃO CLUBES DO BRASILEIRÃO</span>
                 <h1>FUTEBOL DE PREGO</h1>
                 <p class="subtitle">O clássico futebol de mesa brasileiro</p>
             </div>
@@ -60,28 +60,59 @@
         </div>
     </div>
 
-    <!-- TELA DE ESCALAÇÃO TÁTICA -->
+    <!-- TELA DE ESCALAÇÃO TÁTICA E SELEÇÃO DE TIMEL -->
     <div id="formation-screen" class="screen hidden">
         <div id="formation-container">
 
             <header class="formation-header">
                 <div>
                     <span class="brand-kicker">PREPARAÇÃO DA PARTIDA</span>
-                    <h1>ESCALAÇÃO TÁTICA</h1>
-                    <p>Escolha sua formação e arraste os pregos para ajustar o posicionamento.</p>
+                    <h1>SELEÇÃO E ESCALAÇÃO</h1>
+                    <p>Escolha seu clube e sua formação tática para o amistoso.</p>
                 </div>
 
                 <div class="formation-legend">
-                    <span>
-                        <i class="legend-dot brazil-dot"></i>
-                        Brasil
+                    <span id="legend-p1-container">
+                        <i id="legend-p1-dot" class="legend-dot"></i>
+                        <span id="legend-p1-text">Jogador</span>
                     </span>
-                    <span>
-                        <i class="legend-dot argentina-dot"></i>
-                        Argentina (IA)
+                    <span id="legend-ai-container">
+                        <i id="legend-ai-dot" class="legend-dot"></i>
+                        <span id="legend-ai-text">Adversário (IA)</span>
                     </span>
                 </div>
             </header>
+
+            <!-- SELEÇÃO DE CLUBES -->
+            <section class="team-selection-section">
+                <h2>Escolha seu Clube</h2>
+                <div class="team-buttons">
+                    <button class="team-choice active" data-team="flamengo">
+                        <strong>Flamengo</strong>
+                    </button>
+                    <button class="team-choice" data-team="vasco">
+                        <strong>Vasco</strong>
+                    </button>
+                    <button class="team-choice" data-team="gremio">
+                        <strong>Grêmio</strong>
+                    </button>
+                    <button class="team-choice" data-team="inter">
+                        <strong>Internacional</strong>
+                    </button>
+                    <button class="team-choice" data-team="cruzeiro">
+                        <strong>Cruzeiro</strong>
+                    </button>
+                    <button class="team-choice" data-team="botafogo">
+                        <strong>Botafogo</strong>
+                    </button>
+                    <button class="team-choice" data-team="palmeiras">
+                        <strong>Palmeiras</strong>
+                    </button>
+                    <button class="team-choice" data-team="saopaulo">
+                        <strong>São Paulo</strong>
+                    </button>
+                </div>
+            </section>
 
             <section class="formation-options">
                 <h2>Escolha sua formação</h2>
@@ -99,12 +130,37 @@
 
                     <button class="formation-choice" data-formation="352">
                         <strong>3-5-2</strong>
-                        <small>Domínio do meio</small>
+                        <small>Domínio do Meio</small>
                     </button>
 
                     <button class="formation-choice" data-formation="532">
                         <strong>5-3-2</strong>
                         <small>Defensiva</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="4231">
+                        <strong>4-2-3-1</strong>
+                        <small>Moderna</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="4141">
+                        <strong>4-1-4-1</strong>
+                        <small>Consistente</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="343">
+                        <strong>3-4-3</strong>
+                        <small>Ataque Total</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="541">
+                        <strong>5-4-1</strong>
+                        <small>Retranca</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="3421">
+                        <strong>3-4-2-1</strong>
+                        <small>Dinâmica</small>
                     </button>
                 </div>
             </section>
@@ -112,12 +168,12 @@
             <section class="tactical-board-section">
                 <div class="tactical-board-heading">
                     <strong>PRÉVIA DO CAMPO</strong>
-                    <span id="formation-status">Brasil: 4-3-3 | Argentina: 4-4-2</span>
+                    <span id="formation-status">Flamengo: 4-3-3 | Vasco: 4-4-2</span>
                 </div>
 
                 <div
                     id="tactical-field"
-                    aria-label="Campo tático. Arraste os pregos amarelos para mudar suas posições."
+                    aria-label="Campo tático. Exibe o posicionamento dos times."
                 >
                     <div class="tactical-center-line"></div>
                     <div class="tactical-center-circle"></div>
@@ -130,10 +186,7 @@
                 </div>
 
                 <p class="formation-help">
-                    Arraste os pregos amarelos para ajustar seu time.
-                    Existe uma faixa de segurança próxima ao gol para impedir
-                    que os jogadores bloqueiem completamente sua abertura.
-                    Os pregos azuis mostram a formação escolhida pela Argentina.
+                    Cada formação possui 10 jogadores de linha e 1 goleiro dispostos estrategicamente para proteção do gol e equilíbrio defensivo.
                 </p>
             </section>
 
@@ -157,23 +210,24 @@
             <!-- CABEÇALHO COM PLACAR -->
             <header id="ui-header">
 
-                <div class="team-score team-brazil" id="panel-brazil">
-                    <span class="team-name">BRASIL</span>
-                    <span class="score" id="score-brazil">0</span>
+                <div class="team-score team-p1" id="panel-p1">
+                    <span class="team-name" id="name-p1">FLAMENGO</span>
+                    <span class="score" id="score-p1">0</span>
                 </div>
 
                 <div id="game-info">
                     <div id="turn-indicator">
                         Vez de:
-                        <span id="current-turn">BRASIL</span>
+                        <span id="current-turn">FLAMENGO</span>
                     </div>
 
-                    <div id="timer">00:00</div>
+                    <div id="timer">03:00</div>
+                    <div id="match-status-badge" class="hidden">GOL DE OURO</div>
                 </div>
 
-                <div class="team-score team-argentina" id="panel-argentina">
-                    <span class="score" id="score-argentina">0</span>
-                    <span class="team-name">ARGENTINA</span>
+                <div class="team-score team-ai" id="panel-ai">
+                    <span class="score" id="score-ai">0</span>
+                    <span class="team-name" id="name-ai">VASCO</span>
                 </div>
 
             </header>
@@ -194,6 +248,19 @@
                 </button>
             </footer>
 
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO FINAL -->
+    <div id="result-modal" class="screen modal-overlay hidden">
+        <div class="modal-box">
+            <span class="brand-kicker">FIM DE JOGO</span>
+            <h2 id="result-title">FLAMENGO VENCEU</h2>
+            <p id="result-subtitle">Placar Final — 3 x 1</p>
+            <div class="modal-buttons">
+                <button id="btn-play-again" class="btn primary large">JOGAR NOVAMENTE</button>
+                <button id="btn-back-menu" class="btn large">MENU PRINCIPAL</button>
+            </div>
         </div>
     </div>
 
