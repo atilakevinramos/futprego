@@ -587,3 +587,122 @@ canvas {
         font-size: 0.78rem;
     }
 }
+
+
+/* =========================================================
+   IDENTIDADE VISUAL UNIFICADA - FUTPREGO
+   A tela tática passa a usar a mesma linguagem visual da partida.
+   ========================================================= */
+
+/* As telas compartilham o mesmo fundo externo. */
+#formation-screen,
+#game-screen {
+    background: #1a1a1a;
+}
+
+/* O painel tático agora segue o mesmo padrão do painel da partida. */
+#formation-container {
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+/* Título e textos usam os mesmos tons da interface da partida. */
+.formation-header h1 {
+    color: #ffeb3b;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.formation-header p,
+.formation-help {
+    color: #b0bec5;
+}
+
+/* Área das formações segue o padrão escuro dos painéis do placar. */
+.formation-options h2 {
+    color: #fff;
+}
+
+.formation-choice {
+    background: #444;
+    border: 2px solid #555;
+    border-radius: 6px;
+    color: #fff;
+    transition: background 0.2s, transform 0.1s, border-color 0.2s;
+}
+
+.formation-choice:hover {
+    background: #555;
+}
+
+.formation-choice:active {
+    transform: scale(0.96);
+}
+
+.formation-choice small {
+    color: #b0bec5;
+}
+
+.formation-choice.active {
+    background: #2e7d32;
+    border-color: #ffeb3b;
+    box-shadow: 0 0 12px rgba(255, 235, 59, 0.15);
+}
+
+.formation-choice.active:hover {
+    background: #388e3c;
+}
+
+/* O quadro tático segue a mesma cor dos painéis internos do jogo. */
+.tactical-board-section {
+    background: #151515;
+    border: 2px solid #444;
+    border-radius: 8px;
+}
+
+.tactical-board-heading strong {
+    color: #ffeb3b;
+}
+
+#formation-status {
+    color: #b0bec5;
+}
+
+/* Os botões de navegação e confirmação mantêm o padrão .btn do jogo. */
+.formation-footer .btn {
+    border-radius: 6px;
+}
+
+.formation-footer .btn.primary {
+    background: #2e7d32;
+}
+
+.formation-footer .btn.primary:hover {
+    background: #388e3c;
+}
+
+/* Mantém o campo como elemento de destaque, mas com acabamento coerente. */
+#tactical-field {
+    border-color: #444;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+}
+
+/* O contorno da tela tática não compete visualmente com o campo. */
+.formation-legend {
+    color: #b0bec5;
+}
+
+/* Ajustes para que a tela tática e a partida tenham o mesmo acabamento
+   em monitores menores, sem alterar a interface original do jogo. */
+@media (max-width: 700px) {
+    #formation-container {
+        border-radius: 12px;
+        border-color: #444;
+    }
+
+    .formation-choice {
+        border-radius: 6px;
+    }
+}
