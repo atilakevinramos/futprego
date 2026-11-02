@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futebol de Prego 1.1 - Brasil x Argentina</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- TELA DE MENU INICIAL -->
+    <div id="menu-screen" class="screen">
+        <div class="menu-box">
+            <h1>FUTEBOL DE PREGO</h1>
+            <p class="subtitle">O clássico futebol de mesa brasileiro</p>
+            <div class="menu-buttons">
+                <button id="btn-play" class="btn primary large">JOGAR</button>
+                <button id="btn-options" class="btn large">OPÇÕES</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DO JOGO PRINCIPAL -->
+    <div id="game-screen" class="screen hidden">
+        <div id="game-container">
+            <!-- CABEÇALHO COM INTERFACE E PLACAR -->
+            <header id="ui-header">
+                <div class="team-score team-brazil" id="panel-brazil">
+                    <span class="team-name">BRASIL</span>
+                    <span class="score" id="score-brazil">0</span>
+                </div>
+
+                <div id="game-info">
+                    <div id="turn-indicator">Vez de: <span id="current-turn">BRASIL</span></div>
+                    <div id="timer">00:00</div>
+                </div>
+
+                <div class="team-score team-argentina" id="panel-argentina">
+                    <span class="score" id="score-argentina">0</span>
+                    <span class="team-name">ARGENTINA</span>
+                </div>
+            </header>
+
+            <!-- ÁREA DO CANVAS -->
+            <main id="canvas-wrapper">
+                <canvas id="gameCanvas" width="1000" height="600"></canvas>
+            </main>
+
+            <!-- BARRA DE CONTROLES E BOTÕES -->
+            <footer id="ui-controls">
+                <button id="btn-restart" class="btn">Reiniciar Posições</button>
+                <button id="btn-new-game" class="btn primary">Menu Principal</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- CARREGAMENTO DOS SCRIPTS -->
+    <script src="physics.js"></script>
+    <script src="game.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

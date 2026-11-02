@@ -1,0 +1,203 @@
+/* RESET E ESTILOS BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background-color: #1a1a1a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* MENU INICIAL */
+#menu-screen {
+    background: radial-gradient(circle, #2d4a3e 0%, #111e18 100%);
+}
+
+.menu-box {
+    text-align: center;
+    background: rgba(20, 20, 20, 0.85);
+    padding: 50px 70px;
+    border-radius: 16px;
+    border: 3px solid #388e3c;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+}
+
+.menu-box h1 {
+    font-size: 3rem;
+    color: #ffeb3b;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #b0bec5;
+    margin-bottom: 35px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 240px;
+    margin: 0 auto;
+}
+
+/* CONTAINER DO JOGO */
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #222;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+/* INTERFACE SUPERIOR / PLACAR */
+#ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+    background: #151515;
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: 2px solid #444;
+}
+
+.team-score {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.team-brazil {
+    border-left: 6px solid #ffeb3b;
+}
+
+.team-argentina {
+    border-right: 6px solid #4fc3f7;
+}
+
+.active-turn {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.team-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.score {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+#game-info {
+    text-align: center;
+}
+
+#turn-indicator {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin-bottom: 4px;
+}
+
+#current-turn {
+    font-weight: bold;
+    color: #ffeb3b;
+}
+
+#timer {
+    font-size: 1.3rem;
+    font-family: monospace;
+    font-weight: bold;
+    color: #ffca28;
+}
+
+/* WRAPPER DO CANVAS */
+#canvas-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: center;
+}
+
+canvas {
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    cursor: crosshair;
+    max-width: 100%;
+    height: auto;
+}
+
+/* BOTÕES */
+#ui-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #fff;
+    background: #444;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+    background: #555;
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btn.primary {
+    background: #2e7d32;
+}
+
+.btn.primary:hover {
+    background: #388e3c;
+}
+
+.btn.large {
+    padding: 14px 24px;
+    font-size: 1.1rem;
+}
