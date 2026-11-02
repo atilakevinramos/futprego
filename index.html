@@ -3,54 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futebol de Prego 1.1 - Brasil x Argentina</title>
+    <meta name="theme-color" content="#101a17">
+    <title>Futebol de Prego 1.2 - Brasil x Argentina</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- TELA DE MENU INICIAL -->
     <div id="menu-screen" class="screen">
         <div class="menu-box">
-            <h1>FUTEBOL DE PREGO</h1>
-            <p class="subtitle">O clássico futebol de mesa brasileiro</p>
+            <div class="game-brand">
+                <span class="brand-kicker">BRASIL × ARGENTINA</span>
+                <h1>FUTEBOL DE PREGO</h1>
+                <p class="subtitle">O clássico futebol de mesa brasileiro</p>
+            </div>
+
             <div class="menu-buttons">
                 <button id="btn-play" class="btn primary large">JOGAR</button>
                 <button id="btn-options" class="btn large">OPÇÕES</button>
             </div>
+
+            <p class="menu-version">EDIÇÃO 1.2</p>
         </div>
     </div>
 
-    <!-- NOVA TELA DE ESCALAÇÃO TÁTICA -->
+    <!-- TELA DE OPÇÕES -->
+    <div id="options-screen" class="screen hidden">
+        <div class="options-box">
+            <div class="options-header">
+                <span class="brand-kicker">PERSONALIZAÇÃO</span>
+                <h1>OPÇÕES</h1>
+                <p>Configure a apresentação do jogo.</p>
+            </div>
+
+            <div class="option-item">
+                <div class="option-description">
+                    <strong>Tela cheia</strong>
+                    <span>Use toda a área disponível do monitor.</span>
+                    <small id="fullscreen-status">Modo janela</small>
+                </div>
+
+                <button
+                    id="btn-fullscreen"
+                    class="btn primary option-action"
+                    type="button"
+                >
+                    ATIVAR
+                </button>
+            </div>
+
+            <div class="options-footer">
+                <button id="btn-options-close" class="btn large" type="button">
+                    VOLTAR AO MENU
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE ESCALAÇÃO TÁTICA -->
     <div id="formation-screen" class="screen hidden">
         <div id="formation-container">
+
             <header class="formation-header">
                 <div>
+                    <span class="brand-kicker">PREPARAÇÃO DA PARTIDA</span>
                     <h1>ESCALAÇÃO TÁTICA</h1>
                     <p>Escolha sua formação e arraste os pregos para ajustar o posicionamento.</p>
                 </div>
+
                 <div class="formation-legend">
-                    <span><i class="legend-dot brazil-dot"></i> Brasil</span>
-                    <span><i class="legend-dot argentina-dot"></i> Argentina (IA)</span>
+                    <span>
+                        <i class="legend-dot brazil-dot"></i>
+                        Brasil
+                    </span>
+                    <span>
+                        <i class="legend-dot argentina-dot"></i>
+                        Argentina (IA)
+                    </span>
                 </div>
             </header>
 
             <section class="formation-options">
                 <h2>Escolha sua formação</h2>
+
                 <div class="formation-buttons">
-                    <button class="formation-choice active" data-formation="331">
-                        <strong>3-3-1</strong>
-                        <small>Equilibrada</small>
-                    </button>
-                    <button class="formation-choice" data-formation="322">
-                        <strong>3-2-2</strong>
+                    <button class="formation-choice active" data-formation="433">
+                        <strong>4-3-3</strong>
                         <small>Ofensiva</small>
                     </button>
-                    <button class="formation-choice" data-formation="232">
-                        <strong>2-3-2</strong>
+
+                    <button class="formation-choice" data-formation="442">
+                        <strong>4-4-2</strong>
                         <small>Equilibrada</small>
                     </button>
-                    <button class="formation-choice" data-formation="241">
-                        <strong>2-4-1</strong>
+
+                    <button class="formation-choice" data-formation="352">
+                        <strong>3-5-2</strong>
                         <small>Domínio do meio</small>
+                    </button>
+
+                    <button class="formation-choice" data-formation="532">
+                        <strong>5-3-2</strong>
+                        <small>Defensiva</small>
                     </button>
                 </div>
             </section>
@@ -58,9 +112,13 @@
             <section class="tactical-board-section">
                 <div class="tactical-board-heading">
                     <strong>PRÉVIA DO CAMPO</strong>
-                    <span id="formation-status">Formação selecionada: 3-3-1</span>
+                    <span id="formation-status">Brasil: 4-3-3 | Argentina: 4-4-2</span>
                 </div>
-                <div id="tactical-field" aria-label="Campo tático. Arraste os pregos amarelos para mudar suas posições.">
+
+                <div
+                    id="tactical-field"
+                    aria-label="Campo tático. Arraste os pregos amarelos para mudar suas posições."
+                >
                     <div class="tactical-center-line"></div>
                     <div class="tactical-center-circle"></div>
                     <div class="tactical-center-spot"></div>
@@ -70,34 +128,54 @@
                     <div class="tactical-right-goal"></div>
                     <div id="tactical-pegs"></div>
                 </div>
-                <p class="formation-help">Arraste os pregos amarelos para qualquer posição do seu lado do campo. Os pregos azuis mostram a formação escolhida pela Argentina.</p>
+
+                <p class="formation-help">
+                    Arraste os pregos amarelos para ajustar seu time.
+                    Existe uma faixa de segurança próxima ao gol para impedir
+                    que os jogadores bloqueiem completamente sua abertura.
+                    Os pregos azuis mostram a formação escolhida pela Argentina.
+                </p>
             </section>
 
             <footer class="formation-footer">
-                <button id="btn-formation-back" class="btn">Voltar ao menu</button>
-                <button id="btn-confirm-formation" class="btn primary large">CONFIRMAR E JOGAR</button>
+                <button id="btn-formation-back" class="btn">
+                    Voltar ao menu
+                </button>
+
+                <button id="btn-confirm-formation" class="btn primary large">
+                    CONFIRMAR E JOGAR
+                </button>
             </footer>
+
         </div>
     </div>
 
     <!-- TELA DO JOGO PRINCIPAL -->
     <div id="game-screen" class="screen hidden">
         <div id="game-container">
-            <!-- CABEÇALHO COM INTERFACE E PLACAR -->
+
+            <!-- CABEÇALHO COM PLACAR -->
             <header id="ui-header">
+
                 <div class="team-score team-brazil" id="panel-brazil">
                     <span class="team-name">BRASIL</span>
                     <span class="score" id="score-brazil">0</span>
                 </div>
 
                 <div id="game-info">
-                    <div id="turn-indicator">Vez de: <span id="current-turn">BRASIL</span></div>
+                    <div id="turn-indicator">
+                        Vez de:
+                        <span id="current-turn">BRASIL</span>
+                    </div>
+
                     <div id="timer">00:00</div>
                 </div>
+
                 <div class="team-score team-argentina" id="panel-argentina">
                     <span class="score" id="score-argentina">0</span>
                     <span class="team-name">ARGENTINA</span>
                 </div>
+
             </header>
 
             <!-- ÁREA DO CANVAS -->
@@ -105,11 +183,17 @@
                 <canvas id="gameCanvas" width="1000" height="600"></canvas>
             </main>
 
-            <!-- BARRA DE CONTROLES E BOTÕES -->
+            <!-- CONTROLES -->
             <footer id="ui-controls">
-                <button id="btn-restart" class="btn">Reiniciar Posições</button>
-                <button id="btn-new-game" class="btn primary">Menu Principal</button>
+                <button id="btn-restart" class="btn">
+                    Reiniciar Posições
+                </button>
+
+                <button id="btn-new-game" class="btn primary">
+                    Menu Principal
+                </button>
             </footer>
+
         </div>
     </div>
 
@@ -117,5 +201,6 @@
     <script src="physics.js"></script>
     <script src="game.js"></script>
     <script src="main.js"></script>
+
 </body>
 </html>

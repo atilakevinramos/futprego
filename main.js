@@ -1,22 +1,27 @@
 /**
  * INICIALIZAÇÃO, NAVEGAÇÃO DE MENUS E INTEGRAÇÃO DE INTERFACE
- * Inclui seleção de formação e posicionamento manual dos pregos antes da partida.
+ * Inclui seleção de formação, posicionamento manual e opções do jogo.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     const menuScreen = document.getElementById('menu-screen');
+    const optionsScreen = document.getElementById('options-screen');
     const formationScreen = document.getElementById('formation-screen');
     const gameScreen = document.getElementById('game-screen');
 
     const btnPlay = document.getElementById('btn-play');
     const btnOptions = document.getElementById('btn-options');
+    const btnOptionsClose = document.getElementById('btn-options-close');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const fullscreenStatus = document.getElementById('fullscreen-status');
+
     const btnFormationBack = document.getElementById('btn-formation-back');
     const btnConfirmFormation = document.getElementById('btn-confirm-formation');
 
     const canvas = document.getElementById('gameCanvas');
     const game = new Game(canvas);
 
-    // Elementos da DOM da Partida
+    // Elementos da partida
     const scoreBrazilEl = document.getElementById('score-brazil');
     const scoreArgentinaEl = document.getElementById('score-argentina');
     const currentTurnEl = document.getElementById('current-turn');
@@ -33,77 +38,187 @@ document.addEventListener('DOMContentLoaded', () => {
     const formationButtons = document.querySelectorAll('.formation-choice');
 
     /*
-     * Cada formação tem 8 posições:
-     * 1 goleiro + 7 jogadores de linha.
+     * Cada formação possui 11 posições:
+     * 1 goleiro + 10 jogadores de linha.
+     *
      * As coordenadas são porcentagens do campo tático.
+     *
+     * O limite mínimo de X é 12%, mantendo os jogadores
+     * afastados da região imediata do próprio gol.
      */
+
     const formations = {
-        '331': {
-            name: '3-3-1',
+        '433': {
+            name: '4-3-3',
             positions: [
-                { x: 6, y: 50 },
-                { x: 17, y: 25 },
-                { x: 17, y: 50 },
-                { x: 17, y: 75 },
-                { x: 30, y: 25 },
-                { x: 30, y: 50 },
-                { x: 30, y: 75 },
-                { x: 44, y: 50 }
+                // Goleiro
+                { x: 12, y: 50 },
+
+                // Defesa - 4 jogadores
+                { x: 20, y: 18 },
+                { x: 20, y: 39 },
+                { x: 20, y: 61 },
+                { x: 20, y: 82 },
+
+                // Meio-campo - 3 jogadores
+                { x: 32, y: 25 },
+                { x: 32, y: 50 },
+                { x: 32, y: 75 },
+
+                // Ataque - 3 jogadores
+                { x: 44, y: 25 },
+                { x: 44, y: 50 },
+                { x: 44, y: 75 }
             ]
         },
-        '322': {
-            name: '3-2-2',
+
+        '442': {
+            name: '4-4-2',
             positions: [
-                { x: 6, y: 50 },
-                { x: 17, y: 25 },
-                { x: 17, y: 50 },
-                { x: 17, y: 75 },
-                { x: 30, y: 35 },
-                { x: 30, y: 65 },
+                // Goleiro
+                { x: 12, y: 50 },
+
+                // Defesa - 4 jogadores
+                { x: 20, y: 18 },
+                { x: 20, y: 39 },
+                { x: 20, y: 61 },
+                { x: 20, y: 82 },
+
+                // Meio-campo - 4 jogadores
+                { x: 32, y: 18 },
+                { x: 32, y: 39 },
+                { x: 32, y: 61 },
+                { x: 32, y: 82 },
+
+                // Ataque - 2 jogadores
                 { x: 44, y: 35 },
                 { x: 44, y: 65 }
             ]
         },
-        '232': {
-            name: '2-3-2',
+
+        '352': {
+            name: '3-5-2',
             positions: [
-                { x: 6, y: 50 },
-                { x: 17, y: 35 },
-                { x: 17, y: 65 },
-                { x: 30, y: 25 },
-                { x: 30, y: 50 },
-                { x: 30, y: 75 },
+                // Goleiro
+                { x: 12, y: 50 },
+
+                // Defesa - 3 jogadores
+                { x: 20, y: 25 },
+                { x: 20, y: 50 },
+                { x: 20, y: 75 },
+
+                // Meio-campo - 5 jogadores
+                { x: 32, y: 12 },
+                { x: 32, y: 31 },
+                { x: 32, y: 50 },
+                { x: 32, y: 69 },
+                { x: 32, y: 88 },
+
+                // Ataque - 2 jogadores
                 { x: 44, y: 35 },
                 { x: 44, y: 65 }
             ]
         },
-        '241': {
-            name: '2-4-1',
+
+        '532': {
+            name: '5-3-2',
             positions: [
-                { x: 6, y: 50 },
-                { x: 17, y: 35 },
-                { x: 17, y: 65 },
-                { x: 29, y: 18 },
-                { x: 29, y: 39 },
-                { x: 29, y: 61 },
-                { x: 29, y: 82 },
-                { x: 44, y: 50 }
+                // Goleiro
+                { x: 12, y: 50 },
+
+                // Defesa - 5 jogadores
+                { x: 20, y: 12 },
+                { x: 20, y: 31 },
+                { x: 20, y: 50 },
+                { x: 20, y: 69 },
+                { x: 20, y: 88 },
+
+                // Meio-campo - 3 jogadores
+                { x: 32, y: 25 },
+                { x: 32, y: 50 },
+                { x: 32, y: 75 },
+
+                // Ataque - 2 jogadores
+                { x: 44, y: 35 },
+                { x: 44, y: 65 }
             ]
         }
     };
 
-    let selectedFormation = '331';
-    let selectedAiFormation = '322';
+    let selectedFormation = '433';
+    let selectedAiFormation = '442';
     let customBrazilPositions = [];
     let draggingPeg = null;
 
     let secondsElapsed = 0;
     let timerInterval = null;
 
+    // =====================================================
+    // OPÇÕES E TELA CHEIA
+    // =====================================================
+
+    function updateFullscreenInterface() {
+        const isFullscreen = Boolean(document.fullscreenElement);
+
+        fullscreenStatus.textContent = isFullscreen
+            ? 'Modo tela cheia ativado'
+            : 'Modo janela';
+
+        btnFullscreen.textContent = isFullscreen
+            ? 'SAIR DA TELA CHEIA'
+            : 'ATIVAR';
+
+        btnFullscreen.classList.toggle('fullscreen-active', isFullscreen);
+    }
+
+    async function toggleFullscreen() {
+        try {
+            if (!document.fullscreenElement) {
+                if (!document.documentElement.requestFullscreen) {
+                    fullscreenStatus.textContent =
+                        'Seu navegador não oferece suporte à tela cheia.';
+                    return;
+                }
+
+                await document.documentElement.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error('Não foi possível alterar a tela cheia:', error);
+
+            fullscreenStatus.textContent =
+                'Não foi possível alterar o modo de tela.';
+        }
+
+        updateFullscreenInterface();
+    }
+
+    btnOptions.addEventListener('click', () => {
+        menuScreen.classList.add('hidden');
+        optionsScreen.classList.remove('hidden');
+        updateFullscreenInterface();
+    });
+
+    btnOptionsClose.addEventListener('click', () => {
+        optionsScreen.classList.add('hidden');
+        menuScreen.classList.remove('hidden');
+    });
+
+    btnFullscreen.addEventListener('click', toggleFullscreen);
+
+    document.addEventListener('fullscreenchange', updateFullscreenInterface);
+
+    // =====================================================
+    // CRONÔMETRO
+    // =====================================================
+
     function startTimer() {
         clearInterval(timerInterval);
+
         secondsElapsed = 0;
         updateTimerDisplay();
+
         timerInterval = setInterval(() => {
             secondsElapsed++;
             updateTimerDisplay();
@@ -111,13 +226,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTimerDisplay() {
-        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        const mins = String(
+            Math.floor(secondsElapsed / 60)
+        ).padStart(2, '0');
+
+        const secs = String(
+            secondsElapsed % 60
+        ).padStart(2, '0');
+
         timerEl.textContent = `${mins}:${secs}`;
     }
 
+    // =====================================================
+    // POSIÇÃO DO MOUSE NO CANVAS
+    // =====================================================
+
     function getCanvasMousePos(e) {
         const rect = canvas.getBoundingClientRect();
+
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
 
@@ -126,6 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
             (e.clientY - rect.top) * scaleY
         );
     }
+
+    // =====================================================
+    // SISTEMA DE FORMAÇÕES
+    // =====================================================
 
     function copyFormationPositions(formationKey) {
         return formations[formationKey].positions.map(position => ({
@@ -138,7 +268,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const possibleFormations = Object.keys(formations)
             .filter(key => key !== selectedFormation);
 
-        const randomIndex = Math.floor(Math.random() * possibleFormations.length);
+        const randomIndex = Math.floor(
+            Math.random() * possibleFormations.length
+        );
+
         selectedAiFormation = possibleFormations[randomIndex];
     }
 
@@ -156,22 +289,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTacticalPeg(team, index, position) {
         const peg = document.createElement('div');
-        peg.className = `tactical-peg ${team === 'brazil' ? 'brazil-peg' : 'argentina-peg'}`;
+
+        peg.className = `tactical-peg ${
+            team === 'brazil' ? 'brazil-peg' : 'argentina-peg'
+        }`;
+
         peg.style.left = `${position.x}%`;
         peg.style.top = `${position.y}%`;
+
         peg.textContent = index === 0 ? 'G' : String(index);
+
         peg.title = team === 'brazil'
-            ? (index === 0 ? 'Goleiro do Brasil - arraste para posicionar' : `Jogador ${index} do Brasil - arraste para posicionar`)
-            : (index === 0 ? 'Goleiro da Argentina' : `Jogador ${index} da Argentina`);
+            ? (
+                index === 0
+                    ? 'Goleiro do Brasil - arraste para posicionar'
+                    : `Jogador ${index} do Brasil - arraste para posicionar`
+            )
+            : (
+                index === 0
+                    ? 'Goleiro da Argentina'
+                    : `Jogador ${index} da Argentina`
+            );
+
         peg.setAttribute('aria-label', peg.title);
 
         if (team === 'brazil') {
             peg.dataset.index = String(index);
 
-            peg.addEventListener('pointerdown', (event) => {
+            peg.addEventListener('pointerdown', event => {
                 event.preventDefault();
+
                 draggingPeg = peg;
                 peg.classList.add('dragging');
+
                 if (typeof peg.setPointerCapture === 'function') {
                     peg.setPointerCapture(event.pointerId);
                 }
@@ -184,10 +334,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTacticalPreview() {
         tacticalPegs.innerHTML = '';
 
+        // Desenha os 11 pregos brasileiros
         customBrazilPositions.forEach((position, index) => {
             createTacticalPeg('brazil', index, position);
         });
 
+        // Desenha os 11 pregos argentinos espelhados
         const aiPositions = formations[selectedAiFormation].positions;
 
         aiPositions.forEach((position, index) => {
@@ -195,7 +347,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 x: 100 - position.x,
                 y: position.y
             };
-            createTacticalPeg('argentina', index, mirroredPosition);
+
+            createTacticalPeg(
+                'argentina',
+                index,
+                mirroredPosition
+            );
         });
 
         updateFormationButtons();
@@ -205,22 +362,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!formations[formationKey]) return;
 
         selectedFormation = formationKey;
-        customBrazilPositions = copyFormationPositions(selectedFormation);
 
-        // A IA sempre recebe uma formação diferente da escolhida pelo jogador.
+        customBrazilPositions = copyFormationPositions(
+            selectedFormation
+        );
+
+        // A IA sempre recebe uma formação diferente da escolhida.
         chooseAiFormation();
+
         renderTacticalPreview();
     }
 
     function openFormationScreen() {
         menuScreen.classList.add('hidden');
+        optionsScreen.classList.add('hidden');
         gameScreen.classList.add('hidden');
         formationScreen.classList.remove('hidden');
 
-        customBrazilPositions = copyFormationPositions(selectedFormation);
+        customBrazilPositions = copyFormationPositions(
+            selectedFormation
+        );
+
         chooseAiFormation();
         renderTacticalPreview();
     }
+
+    // =====================================================
+    // ARRASTE DOS PREGOS
+    // =====================================================
 
     function updateDraggedPeg(event) {
         if (!draggingPeg) return;
@@ -231,8 +400,18 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = ((event.clientX - rect.left) / rect.width) * 100;
         let y = ((event.clientY - rect.top) / rect.height) * 100;
 
-        // O Brasil ocupa a metade esquerda. Mantemos os pregos dentro do campo.
-        x = Math.max(5, Math.min(47, x));
+        /*
+         * ZONA DE SEGURANÇA:
+         *
+         * O Brasil só pode posicionar seus pregos entre 12% e 47%
+         * da largura do campo.
+         *
+         * A Argentina ocupa o lado espelhado, entre 53% e 88%.
+         *
+         * Isso impede que os jogadores fiquem colados à boca dos gols.
+         */
+
+        x = Math.max(12, Math.min(47, x));
         y = Math.max(8, Math.min(92, y));
 
         customBrazilPositions[index] = { x, y };
@@ -243,43 +422,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function finishPegDrag() {
         if (!draggingPeg) return;
+
         draggingPeg.classList.remove('dragging');
         draggingPeg = null;
     }
 
+    // =====================================================
+    // APLICAÇÃO DAS FORMAÇÕES NA PARTIDA
+    // =====================================================
+
     function applyTacticalPositionsToGame() {
-        // Os primeiros 8 pregos pertencem ao Brasil.
+        // Aplica os 11 pregos brasileiros
         customBrazilPositions.forEach((position, index) => {
             const peg = game.pegs[index];
+
             if (!peg) return;
 
-            peg.position.x = (position.x / 100) * canvas.width;
-            peg.position.y = (position.y / 100) * canvas.height;
+            peg.position.x =
+                (position.x / 100) * canvas.width;
+
+            peg.position.y =
+                (position.y / 100) * canvas.height;
         });
 
-        // Os 8 pregos seguintes pertencem à Argentina.
+        // Aplica os 11 pregos argentinos
         const aiPositions = formations[selectedAiFormation].positions;
 
         aiPositions.forEach((position, index) => {
-            const peg = game.pegs[index + 8];
+            // A Argentina começa depois dos 11 pregos brasileiros.
+            const peg = game.pegs[index + 11];
+
             if (!peg) return;
 
-            peg.position.x = ((100 - position.x) / 100) * canvas.width;
-            peg.position.y = (position.y / 100) * canvas.height;
+            peg.position.x =
+                ((100 - position.x) / 100) * canvas.width;
+
+            peg.position.y =
+                (position.y / 100) * canvas.height;
         });
     }
 
+    // =====================================================
     // NAVEGAÇÃO DE TELAS
+    // =====================================================
+
     btnPlay.addEventListener('click', () => {
         openFormationScreen();
     });
 
-    btnOptions.addEventListener('click', () => {
-        alert('Opções: Modo contra a máquina ativo (Brasil x Argentina). Mais configurações em breve!');
-    });
-
     btnFormationBack.addEventListener('click', () => {
         finishPegDrag();
+
         formationScreen.classList.add('hidden');
         menuScreen.classList.remove('hidden');
     });
@@ -292,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         formationScreen.classList.add('hidden');
         menuScreen.classList.add('hidden');
+        optionsScreen.classList.add('hidden');
         gameScreen.classList.remove('hidden');
 
         startTimer();
@@ -303,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Arraste dos pregos na tela de escalação.
     tacticalField.addEventListener('pointermove', updateDraggedPeg);
     tacticalField.addEventListener('pointerup', finishPegDrag);
     tacticalField.addEventListener('pointercancel', finishPegDrag);
@@ -311,16 +504,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnNewGame.addEventListener('click', () => {
         clearInterval(timerInterval);
+
         gameScreen.classList.add('hidden');
         menuScreen.classList.remove('hidden');
     });
 
-    // LISTENERS DE EVENTOS DE MOUSE DO JOGO
-    canvas.addEventListener('mousedown', (e) => {
+    // =====================================================
+    // CONTROLES DE MOUSE DO JOGO
+    // =====================================================
+
+    canvas.addEventListener('mousedown', e => {
         game.handleMouseDown(getCanvasMousePos(e));
     });
 
-    window.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', e => {
         game.handleMouseMove(getCanvasMousePos(e));
     });
 
@@ -328,33 +525,50 @@ document.addEventListener('DOMContentLoaded', () => {
         game.handleMouseUp();
     });
 
-    // BOTÃO REINICIAR POSIÇÕES (mantém o comportamento original: reposiciona a moeda).
+    // =====================================================
+    // BOTÃO REINICIAR POSIÇÕES
+    // Mantém o comportamento original: reposiciona a moeda.
+    // =====================================================
+
     btnRestart.addEventListener('click', () => {
         game.resetCoin('brazil');
     });
 
+    // =====================================================
     // ATUALIZAÇÃO DA INTERFACE VISUAL
+    // =====================================================
+
     function updateUI() {
         scoreBrazilEl.textContent = game.score.brazil;
         scoreArgentinaEl.textContent = game.score.argentina;
 
         if (game.currentTurn === 'brazil') {
-            currentTurnEl.textContent = game.aiThinking ? 'BRASIL (Aguardando...)' : 'BRASIL';
+            currentTurnEl.textContent = game.aiThinking
+                ? 'BRASIL (Aguardando...)'
+                : 'BRASIL';
+
             currentTurnEl.style.color = '#ffeb3b';
+
             panelBrazil.classList.add('active-turn');
             panelArgentina.classList.remove('active-turn');
         } else {
-            currentTurnEl.textContent = game.aiThinking ? 'ARGENTINA (Pensando...)' : 'ARGENTINA';
+            currentTurnEl.textContent = game.aiThinking
+                ? 'ARGENTINA (Pensando...)'
+                : 'ARGENTINA';
+
             currentTurnEl.style.color = '#4fc3f7';
+
             panelArgentina.classList.add('active-turn');
             panelBrazil.classList.remove('active-turn');
         }
     }
 
-    // GAME LOOP PRINCIPAL (60 FPS)
+    // =====================================================
+    // GAME LOOP PRINCIPAL
+    // =====================================================
+
     function gameLoop() {
         // Só atualiza a partida quando a tela do jogo está aberta.
-        // Isso impede a IA de jogar enquanto o usuário escolhe a formação.
         if (!gameScreen.classList.contains('hidden')) {
             game.update();
             game.draw();
@@ -364,9 +578,10 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(gameLoop);
     }
 
-    // Prepara a formação inicial para a primeira vez que o usuário abrir a tela.
+    // Prepara a formação inicial.
     customBrazilPositions = copyFormationPositions(selectedFormation);
     chooseAiFormation();
 
+    updateFullscreenInterface();
     gameLoop();
 });
